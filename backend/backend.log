@@ -1,0 +1,182 @@
+INFO:     Will watch for changes in these directories: ['/Users/mitulbhatia/agri_proj/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [34194] using WatchFiles
+INFO:     Started server process [34237]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+🚀 Starting Argovers Soil Assistant...
+✓ Loaded embedding model: sentence-transformers/all-MiniLM-L6-v2
+✓ Loaded FAISS index with 17 chunks
+✓ RAG engine ready
+✓ Initialized Ollama adapter with model: phi3
+✓ LLM adapter ready
+INFO:     127.0.0.1:64861 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64870 - "POST /api/v1/session/start HTTP/1.1" 200 OK
+✓ Initialized gTTS
+✓ Semantic validator initialized with embeddings
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.2, 'llm_conf': 0.85, 'combined_conf': 0.29000000000000004, 'asr_text': None, 'retrieved_chunks': ['#### कदम 1: मिट्टी लें\n- 6-8 इंच गहरा (एक हाथ की लंबाई) खोदें\n- 3-4 अलग जगहों से मिट्टी लें\n- सबको अच्छे से मिला लें', '#### कदम 1: मिट्टी लें\n- 4-6 इंच गहरा खोदें\n- मुट्ठी भर मिट्टी लें\n- पत्थर और जड़ें निकाल दें']}
+INFO:     127.0.0.1:64879 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64911 - "POST /api/v1/session/start HTTP/1.1" 200 OK
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.95, 'llm_conf': 0.0, 'combined_conf': 0.57, 'asr_text': None, 'retrieved_chunks': []}
+INFO:     127.0.0.1:64913 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.2, 'llm_conf': 0.85, 'combined_conf': 0.29000000000000004, 'asr_text': None, 'retrieved_chunks': ['#### कदम 1: मिट्टी लें\n- 4-6 इंच गहरा खोदें\n- मुट्ठी भर मिट्टी लें\n- पत्थर और जड़ें निकाल दें', '#### कदम 1: गोला बनाएं\n- नींबू के आकार का गोला बनाएं\n- दोनों हाथों से अच्छे से दबाएं']}
+INFO:     127.0.0.1:64917 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64942 - "POST /api/v1/session/start HTTP/1.1" 200 OK
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.95, 'llm_conf': 0.0, 'combined_conf': 0.57, 'asr_text': None, 'retrieved_chunks': []}
+INFO:     127.0.0.1:64944 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.2, 'llm_conf': 0.85, 'combined_conf': 0.29000000000000004, 'asr_text': None, 'retrieved_chunks': ['#### कदम 1: मिट्टी लें\n- 4-6 इंच गहरा खोदें\n- मुट्ठी भर मिट्टी लें\n- पत्थर और जड़ें निकाल दें', '#### कदम 1: गोला बनाएं\n- नींबू के आकार का गोला बनाएं\n- दोनों हाथों से अच्छे से दबाएं']}
+INFO:     127.0.0.1:64946 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65052 - "POST /api/v1/session/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65053 - "POST /api/v1/session/start HTTP/1.1" 200 OK
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+✓ Initialized Groq STT
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.9990132457, 'validator_conf': 0.2, 'llm_conf': 0.85, 'combined_conf': 0.48980264914000005, 'asr_text': "I don't know how to identify the color of soil.", 'retrieved_chunks': ['#### Step 1: Get Soil\n- Dig 6-8 inches deep (one hand length)\n- Take soil from 3-4 different spots\n- Mix them together well', '#### Step 1: Get Soil\n- Dig 6-8 inches deep (one hand length)\n- Take soil from 3-4 different spots\n- Mix them together well']}
+INFO:     127.0.0.1:65059 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65089 - "GET /tts_0c1535e79db2.mp3 HTTP/1.1" 200 OK
+✓ Initialized Groq STT
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.988147867, 'validator_conf': 0.95, 'llm_conf': 0.0, 'combined_conf': 0.7676295733999999, 'asr_text': 'Fine. I believe my soil is of brown color.', 'retrieved_chunks': []}
+INFO:     127.0.0.1:65133 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65137 - "GET /tts_598501962c84.mp3 HTTP/1.1" 304 Not Modified
+✓ Initialized Groq STT
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.9962283578, 'validator_conf': 0.2, 'llm_conf': 0.85, 'combined_conf': 0.48924567156, 'asr_text': 'I think so it is wet.', 'retrieved_chunks': ['#### Step 1: Get Soil\n- Dig 6-8 inches deep (one hand length)\n- Take soil from 3-4 different spots\n- Mix them together well', '#### Step 1: Get Soil\n- Dig 6-8 inches deep (one hand length)\n- Take soil from 3-4 different spots\n- Mix them together well']}
+INFO:     127.0.0.1:65145 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65165 - "GET /tts_a3acd39eb613.mp3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65202 - "POST /api/v1/session/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65203 - "POST /api/v1/session/start HTTP/1.1" 200 OK
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.2, 'llm_conf': 0.85, 'combined_conf': 0.29000000000000004, 'asr_text': None, 'retrieved_chunks': ['#### कदम 1: मिट्टी लें\n- 6-8 इंच गहरा (एक हाथ की लंबाई) खोदें\n- 3-4 अलग जगहों से मिट्टी लें\n- सबको अच्छे से मिला लें', '#### कदम 1: मिट्टी लें\n- 6-8 इंच गहरा (एक हाथ की लंबाई) खोदें\n- 3-4 अलग जगहों से मिट्टी लें\n- सबको अच्छे से मिला लें']}
+INFO:     127.0.0.1:65206 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65225 - "GET /tts_d9de5a31eae2.mp3 HTTP/1.1" 200 OK
+✓ Initialized Groq STT
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.9979723212, 'validator_conf': 0.95, 'llm_conf': 0.0, 'combined_conf': 0.76959446424, 'asr_text': 'हमने ये कर लिया अब इसके आगे कदम दो बताये', 'retrieved_chunks': []}
+INFO:     127.0.0.1:65242 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65246 - "GET /tts_277887a397e0.mp3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65261 - "POST /api/v1/session/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65262 - "POST /api/v1/session/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49821 - "POST /api/v1/session/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49822 - "POST /api/v1/session/start HTTP/1.1" 200 OK
+✓ Initialized Groq STT
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.996110409, 'validator_conf': 0.95, 'llm_conf': 0.0, 'combined_conf': 0.7692220818, 'asr_text': 'हमें हमारी मिट्टी का रंग पहचानने के लिए कैसे निकाल पाएंगे हम लोग', 'retrieved_chunks': []}
+INFO:     127.0.0.1:49833 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49838 - "GET /tts_277887a397e0.mp3 HTTP/1.1" 304 Not Modified
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.2, 'llm_conf': 0.85, 'combined_conf': 0.29000000000000004, 'asr_text': None, 'retrieved_chunks': ['#### कदम 1: मिट्टी लें\n- 4-6 इंच गहरा खोदें\n- मुट्ठी भर मिट्टी लें\n- पत्थर और जड़ें निकाल दें', '#### कदम 1: गोला बनाएं\n- नींबू के आकार का गोला बनाएं\n- दोनों हाथों से अच्छे से दबाएं']}
+INFO:     127.0.0.1:49855 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49879 - "GET /tts_4a06b208fc01.mp3 HTTP/1.1" 200 OK
+✓ Initialized Groq STT
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.7496746000000001, 'validator_conf': 0.8, 'llm_conf': 0.0, 'combined_conf': 0.62993492, 'asr_text': 'कि मेरे साथ से मिठी मेरी सूखी है', 'retrieved_chunks': []}
+INFO:     127.0.0.1:49915 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49919 - "GET /tts_3b2c028f0681.mp3 HTTP/1.1" 200 OK
+✓ Initialized Groq STT
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.98320115, 'validator_conf': 0.8, 'llm_conf': 0.0, 'combined_conf': 0.67664023, 'asr_text': 'मेरी मिट्टी से खटी गंद आती है।', 'retrieved_chunks': []}
+INFO:     127.0.0.1:49928 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49935 - "GET /tts_509ea7632680.mp3 HTTP/1.1" 200 OK
+✓ Initialized Groq STT
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.992282, 'validator_conf': 0.2, 'llm_conf': 0.85, 'combined_conf': 0.4884564, 'asr_text': 'मेरी मिट्टी असेडिक है।', 'retrieved_chunks': ['#### कदम 1: मिट्टी लें\n- 4-6 इंच गहरा खोदें\n- मुट्ठी भर मिट्टी लें\n- पत्थर और जड़ें निकाल दें', '#### कदम 1: मिट्टी लें\n- 6-8 इंच गहरा (एक हाथ की लंबाई) खोदें\n- 3-4 अलग जगहों से मिट्टी लें\n- सबको अच्छे से मिला लें']}
+INFO:     127.0.0.1:49938 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49961 - "GET /tts_4155f48c36b3.mp3 HTTP/1.1" 200 OK
+✓ Initialized Groq STT
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.9967158241, 'validator_conf': 0.2, 'llm_conf': 0.85, 'combined_conf': 0.48934316482000006, 'asr_text': 'कदम एक हो गया अब कदम दो बताए', 'retrieved_chunks': ['#### कदम 1: गोला बनाएं\n- नींबू के आकार का गोला बनाएं\n- दोनों हाथों से अच्छे से दबाएं', '#### कदम 1: मिट्टी लें\n- 4-6 इंच गहरा खोदें\n- मुट्ठी भर मिट्टी लें\n- पत्थर और जड़ें निकाल दें']}
+INFO:     127.0.0.1:49966 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49977 - "GET /tts_cae7a9d94c2e.mp3 HTTP/1.1" 200 OK
+✓ Initialized Groq STT
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.993504283, 'validator_conf': 0.2, 'llm_conf': 0.85, 'combined_conf': 0.48870085660000007, 'asr_text': 'मेरी मिट्टी अस्टेटिक है', 'retrieved_chunks': ['#### कदम 1: मिट्टी लें\n- 4-6 इंच गहरा खोदें\n- मुट्ठी भर मिट्टी लें\n- पत्थर और जड़ें निकाल दें', '#### कदम 1: मिट्टी लें\n- 6-8 इंच गहरा (एक हाथ की लंबाई) खोदें\n- 3-4 अलग जगहों से मिट्टी लें\n- सबको अच्छे से मिला लें']}
+INFO:     127.0.0.1:49984 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50000 - "GET /tts_5ef7b87cf245.mp3 HTTP/1.1" 200 OK
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.95, 'llm_conf': 0.0, 'combined_conf': 0.57, 'asr_text': None, 'retrieved_chunks': []}
+INFO:     127.0.0.1:49984 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50005 - "GET /tts_14da85df3467.mp3 HTTP/1.1" 200 OK
+✓ Initialized Groq STT
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.992818674, 'validator_conf': 0.8, 'llm_conf': 0.0, 'combined_conf': 0.6785637348, 'asr_text': 'मेरी मिट्टी चिकनी है', 'retrieved_chunks': []}
+INFO:     127.0.0.1:50009 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50013 - "GET /tts_6874bf111187.mp3 HTTP/1.1" 200 OK
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.95, 'llm_conf': 0.0, 'combined_conf': 0.57, 'asr_text': None, 'retrieved_chunks': []}
+INFO:     127.0.0.1:50016 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50019 - "GET /tts_86a90ea68f08.mp3 HTTP/1.1" 200 OK
+✓ Initialized Groq STT
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.955702882, 'validator_conf': 0.95, 'llm_conf': 0.0, 'combined_conf': 0.7611405764, 'asr_text': 'कि मेरा खेद किशोर बालगढ़ किशोरा बालगढ़ में स्थित है', 'retrieved_chunks': []}
+INFO:     127.0.0.1:50024 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50028 - "GET /tts_c6378ed64070.mp3 HTTP/1.1" 200 OK
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.95, 'llm_conf': 0.0, 'combined_conf': 0.57, 'asr_text': None, 'retrieved_chunks': []}
+⚠ Warning: Failed to send to n8n: Error sending to n8n: HTTPSConnectionPool(host='your-n8n-instance.com', port=443): Read timed out. (read timeout=10)
+INFO:     127.0.0.1:50030 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50240 - "OPTIONS /api/v1/session/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50241 - "OPTIONS /api/v1/session/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50240 - "POST /api/v1/session/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50241 - "POST /api/v1/session/start HTTP/1.1" 200 OK
+✓ Initialized Groq STT
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.930847384, 'validator_conf': 0.95, 'llm_conf': 0.0, 'combined_conf': 0.7561694768, 'asr_text': 'The color of my soil is black.', 'retrieved_chunks': []}
+INFO:     127.0.0.1:50262 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50265 - "GET /tts_598501962c84.mp3 HTTP/1.1" 304 Not Modified
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.2, 'llm_conf': 0.85, 'combined_conf': 0.29000000000000004, 'asr_text': None, 'retrieved_chunks': ['#### Step 1: Get Soil\n- Dig 6-8 inches deep (one hand length)\n- Take soil from 3-4 different spots\n- Mix them together well', '#### Step 1: Get Soil\n- Dig 6-8 inches deep (one hand length)\n- Take soil from 3-4 different spots\n- Mix them together well']}
+INFO:     127.0.0.1:50293 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50324 - "GET /tts_6e57644bd434.mp3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50342 - "POST /api/v1/session/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50343 - "POST /api/v1/session/start HTTP/1.1" 200 OK
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.95, 'llm_conf': 0.0, 'combined_conf': 0.57, 'asr_text': None, 'retrieved_chunks': []}
+INFO:     127.0.0.1:50346 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.2, 'llm_conf': 0.85, 'combined_conf': 0.29000000000000004, 'asr_text': None, 'retrieved_chunks': ['#### Step 1: Get Soil\n- Dig 6-8 inches deep (one hand length)\n- Take soil from 3-4 different spots\n- Mix them together well', '#### Step 1: Get Soil\n- Dig 6-8 inches deep (one hand length)\n- Take soil from 3-4 different spots\n- Mix them together well']}
+INFO:     127.0.0.1:50359 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50381 - "GET /tts_90441f60365b.mp3 HTTP/1.1" 200 OK
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.2, 'llm_conf': 0.85, 'combined_conf': 0.29000000000000004, 'asr_text': None, 'retrieved_chunks': ['#### Step 1: Get Soil\n- Dig 6-8 inches deep (one hand length)\n- Take soil from 3-4 different spots\n- Mix them together well', '#### Step 1: Get Soil\n- Dig 6-8 inches deep (one hand length)\n- Take soil from 3-4 different spots\n- Mix them together well']}
+INFO:     127.0.0.1:50359 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50400 - "GET /tts_44f77a765b92.mp3 HTTP/1.1" 200 OK
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.95, 'llm_conf': 0.0, 'combined_conf': 0.57, 'asr_text': None, 'retrieved_chunks': []}
+INFO:     127.0.0.1:50408 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50410 - "GET /tts_b872d3538c00.mp3 HTTP/1.1" 304 Not Modified
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.95, 'llm_conf': 0.0, 'combined_conf': 0.57, 'asr_text': None, 'retrieved_chunks': []}
+INFO:     127.0.0.1:50408 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50410 - "GET /tts_9147614b5199.mp3 HTTP/1.1" 304 Not Modified
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.95, 'llm_conf': 0.0, 'combined_conf': 0.57, 'asr_text': None, 'retrieved_chunks': []}
+INFO:     127.0.0.1:50408 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50410 - "GET /tts_a525557150bc.mp3 HTTP/1.1" 304 Not Modified
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.95, 'llm_conf': 0.0, 'combined_conf': 0.57, 'asr_text': None, 'retrieved_chunks': []}
+INFO:     127.0.0.1:50408 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50410 - "GET /tts_fe353b4d006e.mp3 HTTP/1.1" 304 Not Modified
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.95, 'llm_conf': 0.0, 'combined_conf': 0.57, 'asr_text': None, 'retrieved_chunks': []}
+INFO:     127.0.0.1:50408 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50410 - "GET /tts_d06ecef6e9e5.mp3 HTTP/1.1" 304 Not Modified
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.95, 'llm_conf': 0.0, 'combined_conf': 0.57, 'asr_text': None, 'retrieved_chunks': []}
+INFO:     127.0.0.1:50421 - "POST /api/v1/session/next HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50423 - "GET /tts_690830a18ac3.mp3 HTTP/1.1" 304 Not Modified
+✓ Initialized gTTS
+📊 Audit: {'asr_conf': 0.0, 'validator_conf': 0.95, 'llm_conf': 0.0, 'combined_conf': 0.57, 'asr_text': None, 'retrieved_chunks': []}
+⚠ Warning: Failed to send to n8n: Error sending to n8n: HTTPSConnectionPool(host='your-n8n-instance.com', port=443): Read timed out. (read timeout=10)
+INFO:     127.0.0.1:50442 - "POST /api/v1/session/next HTTP/1.1" 200 OK

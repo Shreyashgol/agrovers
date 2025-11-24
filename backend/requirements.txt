@@ -1,0 +1,37 @@
+# Argovers Soil Assistant - Backend Dependencies
+
+# FastAPI and server
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# File upload and static files
+python-multipart>=0.0.6
+
+# HTTP client for n8n
+httpx==0.25.2
+requests==2.31.0
+
+# RAG and embeddings
+sentence-transformers>=2.7.0
+faiss-cpu>=1.7.4  # Use faiss-gpu if you have CUDA
+numpy>=1.24.3
+huggingface-hub>=0.20.0
+
+# LLM - Gemini (supports both old and new API)
+google-generativeai>=0.8.0
+# google-genai  # Uncomment for new Gemini 3 API support
+
+# Voice Services
+groq>=0.4.0
+gtts>=2.5.0
+pydub>=0.25.1
+openai-whisper  # Optional: for local STT
+# TTS  # Optional: for local TTS (Coqui)
+
+# Utilities
+python-dotenv==1.0.0
+setuptools>=65.0.0
+python-multipart>=0.0.6  # For file uploads
+
