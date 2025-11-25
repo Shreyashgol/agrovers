@@ -1,7 +1,6 @@
 /**
  * Help Panel Component
  * 
- * Displays RAG+LLM generated helper text when user needs assistance.
  * Shows explanation on how to measure the current parameter.
  */
 
@@ -11,25 +10,29 @@ interface HelpPanelProps {
 }
 
 export default function HelpPanel({ helperText, onClose }: HelpPanelProps) {
+  if (!helperText) return null;
+
   return (
-    <div className="mt-6 p-6 bg-blue-50 border-l-4 border-blue-500 rounded-lg">
-      <div className="flex items-start justify-between mb-2">
-        <h3 className="text-lg font-semibold text-blue-900">
-          💡 Help / मदद
-        </h3>
+    <div className="mt-6 p-4 sm:p-5 bg-sky-50 border border-sky-200 rounded-2xl">
+      <div className="flex items-start justify-between gap-3 mb-2">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">💡</span>
+          <h3 className="text-sm sm:text-base font-semibold text-sky-900">
+            Help / मदद
+          </h3>
+        </div>
         {onClose && (
           <button
             onClick={onClose}
-            className="text-blue-600 hover:text-blue-800"
+            className="text-sky-500 hover:text-sky-700 text-sm"
           >
             ✕
           </button>
         )}
       </div>
-      <div className="text-gray-800 whitespace-pre-wrap leading-relaxed">
+      <p className="text-xs sm:text-sm text-sky-900 whitespace-pre-wrap leading-relaxed">
         {helperText}
-      </div>
+      </p>
     </div>
   );
 }
-

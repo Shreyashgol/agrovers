@@ -1,7 +1,5 @@
 /**
- * Main App Component
- * 
- * Root component that manages language selection and wizard flow.
+ * Root React component
  */
 
 import { useState } from 'react';
@@ -11,21 +9,20 @@ import SoilWizard from './pages/SoilWizard';
 
 function App() {
   const [language, setLanguage] = useState<Language | null>(null);
-  
-  const handleLanguageSelect = (selectedLanguage: Language) => {
-    setLanguage(selectedLanguage);
+
+  const handleLanguageSelect = (lang: Language) => {
+    setLanguage(lang);
   };
-  
+
   const handleReset = () => {
     setLanguage(null);
   };
-  
+
   if (!language) {
     return <LanguageSelector onSelect={handleLanguageSelect} />;
   }
-  
+
   return <SoilWizard language={language} onReset={handleReset} />;
 }
 
 export default App;
-

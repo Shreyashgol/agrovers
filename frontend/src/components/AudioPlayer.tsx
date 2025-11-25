@@ -1,10 +1,5 @@
-/**
- * Audio Player Component
- * 
- * Plays TTS audio responses from the backend
- */
-
-import { useEffect, useRef, useState } from 'react';
+// src/components/AudioPlayer.tsx
+import React, { useEffect, useRef, useState } from "react";
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -12,61 +7,31 @@ interface AudioPlayerProps {
   onEnded?: () => void;
 }
 
-export function AudioPlayer({ audioUrl, autoPlay = true, onEnded }: AudioPlayerProps) {
-  const audioRef = useRef<HTMLAudioElement>(null);
+export function AudioPlayer({ audioUrl, autoPlay = false, onEnded }: AudioPlayerProps) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (audioRef.current && autoPlay) {
-      audioRef.current.play().catch((err) => {
-        console.error('Audio playback error:', err);
-        setError(true);
-      });
+      audioRef.current.play().catch(() => {});
     }
   }, [audioUrl, autoPlay]);
 
-  const handlePlay = () => {
-    setIsPlaying(true);
-  };
-
-  const handlePause = () => {
-    setIsPlaying(false);
-  };
-
-  const handleEnded = () => {
-    setIsPlaying(false);
-    onEnded?.();
-  };
-
-  const handleError = () => {
-    setError(true);
-    setIsPlaying(false);
-  };
-
-  if (error) {
-    return (
-      <div className="text-sm text-red-600">
-        ⚠️ Could not play audio
-      </div>
-    );
-  }
-
   return (
-    <div className="flex items-center gap-2 p-2 bg-blue-50 rounded">
+    <div className="p-3 bg-white/90 rounded-lg shadow-sm">
       <audio
+        controls
         ref={audioRef}
         src={audioUrl}
-        onPlay={handlePlay}
-        onPause={handlePause}
-        onEnded={handleEnded}
-        onError={handleError}
-        controls
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onEnded={() => {
+          setIsPlaying(false);
+          onEnded?.();
+        }}
         className="w-full"
       />
-      {isPlaying && (
-        <span className="text-sm text-blue-600">🔊 Playing...</span>
-      )}
+      {isPlaying && <div className="text-xs text-neutral-600 mt-1">🔊 Playing</div>}
     </div>
   );
 }

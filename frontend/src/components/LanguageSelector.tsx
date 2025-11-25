@@ -1,7 +1,7 @@
 /**
  * Language Selection Component
  * 
- * Allows user to select Hindi or English before starting the wizard.
+ * First screen – choose Hindi or English.
  */
 
 import { Language } from '../api/client';
@@ -12,36 +12,55 @@ interface LanguageSelectorProps {
 
 export default function LanguageSelector({ onSelect }: LanguageSelectorProps) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-center mb-2 text-gray-800">
-          Argovers Soil Assistant
-        </h1>
-        <p className="text-center text-gray-600 mb-8">
-          मिट्टी परीक्षण सहायक
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-900 via-slate-900 to-slate-950 text-white px-4">
+      <div className="w-full max-w-md bg-slate-900/80 border border-emerald-500/40 rounded-3xl shadow-2xl p-6 sm:p-8 space-y-6">
+        <div className="text-center space-y-2">
+          <div className="mx-auto w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-2xl">
+            🌾
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold">
+            Agrovers Soil Assistant
+          </h1>
+          <p className="text-sm text-emerald-200">
+            मिट्टी परीक्षण सहायक – simple guidance for your farm
+          </p>
+        </div>
+
+        <p className="text-center text-sm text-slate-200">
+          Please select your preferred language <br />
+          <span className="text-emerald-300">
+            / कृपया अपनी भाषा चुनें
+          </span>
         </p>
-        
-        <p className="text-center text-gray-700 mb-6">
-          Please select your preferred language / कृपया अपनी भाषा चुनें
-        </p>
-        
-        <div className="space-y-4">
+
+        <div className="space-y-3">
           <button
             onClick={() => onSelect('en')}
-            className="w-full py-4 px-6 bg-blue-600 text-white rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors shadow-md"
+            className="w-full py-3.5 px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-400
+                       text-base sm:text-lg font-semibold shadow-lg shadow-emerald-900/50
+                       transition-transform active:scale-95"
           >
             English
           </button>
-          
+
           <button
             onClick={() => onSelect('hi')}
-            className="w-full py-4 px-6 bg-green-600 text-white rounded-lg text-lg font-semibold hover:bg-green-700 transition-colors shadow-md"
+            className="w-full py-3.5 px-6 rounded-2xl bg-amber-500 hover:bg-amber-400
+                       text-base sm:text-lg font-semibold shadow-lg shadow-amber-900/50
+                       transition-transform active:scale-95"
           >
             हिंदी (Hindi)
           </button>
         </div>
+
+        <p className="text-[11px] text-center text-slate-400">
+          Your answers will generate a{" "}
+          <span className="text-emerald-300 font-medium">
+            simple soil health report
+          </span>{" "}
+          for your farm.
+        </p>
       </div>
     </div>
   );
 }
-

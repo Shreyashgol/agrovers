@@ -1,85 +1,64 @@
-/**
- * Custom hook for audio recording
- * 
- * Provides:
- * - Start/stop recording
- * - Audio blob on completion
- * - Recording state
- * - Error handling
- */
+// src/hooks/useAudioRecorder.ts
+import { useState, useRef, useCallback } from "react";
 
-import { useState, useRef, useCallback } from 'react';
-
-interface UseAudioRecorderReturn {
-  isRecording: boolean;
-  audioBlob: Blob | null;
-  startRecording: () => Promise<void>;
-  stopRecording: () => void;
-  error: string | null;
-  clearAudio: () => void;
-}
-
-export function useAudioRecorder(): UseAudioRecorderReturn {
+export function useAudioRecorder() {
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [error, setError] = useState<string | null>(null);
-  
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const startRecording = useCallback(async () => {
+    setError(null);
+    setAudioBlob(null);
+    chunksRef.current = [];
+
     try {
-      setError(null);
-      setAudioBlob(null);
-      chunksRef.current = [];
-
-      // Request microphone access
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          sampleRate: 16000, // Good for speech recognition
-        } 
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 16000 },
       });
+      streamRef.current = stream;
+      let mimeType = "audio/webm";
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = "audio/wav";
+        if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = "";
+      }
 
-      // Create MediaRecorder
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm', // Widely supported
-      });
+      const mr = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      mediaRecorderRef.current = mr;
 
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunksRef.current.push(event.data);
-        }
+      mr.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
       };
 
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+      mr.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: mimeType || "audio/webm" });
         setAudioBlob(blob);
-        
-        // Stop all tracks
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
       };
 
-      mediaRecorder.onerror = (event) => {
-        console.error('MediaRecorder error:', event);
-        setError('Recording failed. Please try again.');
-        setIsRecording(false);
+      mr.onerror = (ev) => {
+        console.error("MediaRecorder error", ev);
+        setError("Recording failed. Try again.");
       };
 
-      mediaRecorderRef.current = mediaRecorder;
-      mediaRecorder.start();
+      mr.start(100);
       setIsRecording(true);
     } catch (err) {
-      console.error('Error starting recording:', err);
-      setError('Could not access microphone. Please check permissions.');
+      console.error("startRecording error", err);
+      setError("Could not access microphone. Check permissions.");
     }
   }, []);
 
   const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
+    const mr = mediaRecorderRef.current;
+    if (mr && isRecording) {
+      mr.stop();
       setIsRecording(false);
+      mediaRecorderRef.current = null;
     }
   }, [isRecording]);
 
@@ -88,12 +67,5 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
     setError(null);
   }, []);
 
-  return {
-    isRecording,
-    audioBlob,
-    startRecording,
-    stopRecording,
-    error,
-    clearAudio,
-  };
+  return { isRecording, audioBlob, startRecording, stopRecording, error, clearAudio };
 }

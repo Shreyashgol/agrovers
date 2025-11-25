@@ -1,16 +1,10 @@
-/**
- * Parameter Step Component
- * 
- * Displays question, options, and input for current parameter.
- * Handles user input submission.
- */
-
-import { useState } from 'react';
-import { Language } from '../api/client';
-import { LABELS } from '../config/labels';
-import HelpPanel from './HelpPanel';
-import { VoiceInput } from './VoiceInput';
-import { AudioPlayer } from './AudioPlayer';
+// src/components/ParameterStep.tsx
+import React, { useState } from "react";
+import { Language } from "../api/client";
+import HelpPanel from "./HelpPanel";
+import { VoiceInput } from "./VoiceInput";
+import { AudioPlayer } from "./AudioPlayer";
+import { LABELS } from "../config/labels";
 
 interface ParameterStepProps {
   parameter: string;
@@ -20,6 +14,7 @@ interface ParameterStepProps {
   audioUrl?: string;
   onSubmit: (message?: string, audioBlob?: Blob) => void;
   onHelpRequest: () => void;
+  isSubmitting?: boolean;
 }
 
 export default function ParameterStep({
@@ -30,155 +25,130 @@ export default function ParameterStep({
   audioUrl,
   onSubmit,
   onHelpRequest,
+  isSubmitting = false,
 }: ParameterStepProps) {
-  const [inputValue, setInputValue] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [inputMode, setInputMode] = useState<'text' | 'voice'>('text');
-  
+  const [inputValue, setInputValue] = useState("");
+  const [inputMode, setInputMode] = useState<"text" | "voice">("text");
+
   const labels = LABELS[parameter]?.[language] || {
-    question: question,
+    question,
     options: [],
-    placeholder: 'Enter your answer...',
-    helpButton: 'Need help?',
+    placeholder: language === "hi" ? "उत्तर लिखें..." : "Enter answer...",
+    helpButton: language === "hi" ? "मदद चाहिए" : "Need help",
   };
-  
-  const handleSubmit = async (value?: string, audioBlob?: Blob) => {
-    if (!value?.trim() && !audioBlob && !isSubmitting) return;
-    
-    setIsSubmitting(true);
-    try {
-      await onSubmit(value?.trim(), audioBlob);
-    } finally {
-      setIsSubmitting(false);
-      setInputValue('');
-    }
-  };
-  
-  const handleVoiceSubmit = (audioBlob: Blob) => {
-    handleSubmit(undefined, audioBlob);
-  };
-  
+
   const handleOptionClick = (option: string) => {
-    handleSubmit(option);
+    if (isSubmitting) return;
+    onSubmit(option);
   };
-  
+
+  const handleSubmitText = () => {
+    if (!inputValue.trim() || isSubmitting) return;
+    onSubmit(inputValue.trim());
+    setInputValue("");
+  };
+
   return (
     <div className="space-y-6">
-      {/* Question */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">
-          {question}
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{question}</h2>
+        <p className="text-sm text-neutral-500">
+          {language === "hi" ? "ईमानदारी से जवाब दें — यह बेहतर सुझाव देगा।" : "Answer honestly — this gives better suggestions."}
+        </p>
       </div>
-      
-      {/* Options */}
-      {labels.options.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {labels.options.map((option) => (
+
+      {/* Options grid (big buttons) */}
+      {labels.options?.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {labels.options.map((opt) => (
             <button
-              key={option}
-              onClick={() => handleOptionClick(option)}
+              key={opt}
+              onClick={() => handleOptionClick(opt)}
               disabled={isSubmitting}
-              className="py-4 px-6 bg-white border-2 border-gray-300 rounded-lg text-lg font-medium text-gray-700 hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="py-4 rounded-xl bg-emerald-700 text-white font-semibold text-lg hover:bg-emerald-600 transition-shadow shadow-md"
             >
-              {option}
+              {opt}
             </button>
           ))}
         </div>
       )}
-      
-      {/* Input Mode Toggle */}
-      <div className="flex gap-2 justify-center">
+
+      {/* Type/Speak toggles */}
+      <div className="flex items-center gap-3">
         <button
-          onClick={() => setInputMode('text')}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            inputMode === 'text'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
+          onClick={() => setInputMode("text")}
+          className={`px-4 py-2 rounded-full font-medium ${inputMode === "text" ? "bg-emerald-600 text-white" : "bg-white/80 text-emerald-700"}`}
         >
-          ⌨️ {language === 'hi' ? 'टाइप करें' : 'Type'}
+          ⌨️ {language === "hi" ? "टाइप" : "Type"}
         </button>
+
         <button
-          onClick={() => setInputMode('voice')}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            inputMode === 'voice'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
+          onClick={() => setInputMode("voice")}
+          className={`px-4 py-2 rounded-full font-medium ${inputMode === "voice" ? "bg-emerald-600 text-white" : "bg-white/80 text-emerald-700"}`}
         >
-          🎤 {language === 'hi' ? 'बोलें' : 'Speak'}
+          🎙️ {language === "hi" ? "बोलें" : "Speak"}
         </button>
       </div>
 
-      {/* Text Input Mode */}
-      {inputMode === 'text' && (
-        <div className="space-y-3">
-          <input
-            type="text"
+      {/* Text input */}
+      {inputMode === "text" && (
+        <>
+          <textarea
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter' && !isSubmitting) {
-                handleSubmit(inputValue);
-              }
-            }}
             placeholder={labels.placeholder}
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-lg focus:outline-none focus:border-blue-500"
-            disabled={isSubmitting}
+            className="w-full p-4 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-lg bg-white/95"
+            rows={4}
           />
-          
           <div className="flex gap-3">
             <button
-              onClick={() => handleSubmit(inputValue)}
-              disabled={isSubmitting || (!inputValue.trim() && labels.options.length === 0)}
-              className="flex-1 py-3 px-6 bg-blue-600 text-white rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleSubmitText}
+              disabled={isSubmitting || !inputValue.trim()}
+              className="flex-1 py-3 rounded-xl bg-emerald-700 text-white font-semibold hover:bg-emerald-600"
             >
-              {isSubmitting ? '...' : language === 'hi' ? 'जमा करें' : 'Submit'}
+              {language === "hi" ? "जमा करें" : "Submit"}
             </button>
-            
+
             <button
               onClick={onHelpRequest}
               disabled={isSubmitting}
-              className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg text-lg font-medium hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-3 rounded-xl bg-white/90 text-emerald-700 font-medium"
             >
-              {labels.helpButton}
+              {language === "hi" ? "मदद चाहिए" : "I don't know / Need help"}
             </button>
           </div>
-        </div>
+        </>
       )}
 
-      {/* Voice Input Mode */}
-      {inputMode === 'voice' && (
-        <div className="space-y-3">
+      {/* Voice input */}
+      {inputMode === "voice" && (
+        <>
           <VoiceInput
-            onAudioRecorded={handleVoiceSubmit}
+            onAudioRecorded={(blob) => onSubmit(undefined, blob)}
             disabled={isSubmitting}
             language={language}
           />
-          
-          <button
-            onClick={onHelpRequest}
-            disabled={isSubmitting}
-            className="w-full px-6 py-3 bg-gray-200 text-gray-700 rounded-lg text-lg font-medium hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {labels.helpButton}
-          </button>
-        </div>
+          <div className="mt-2">
+            <button
+              onClick={onHelpRequest}
+              disabled={isSubmitting}
+              className="w-full py-3 rounded-xl bg-white/90 text-emerald-700 font-medium"
+            >
+              {language === "hi" ? "मदद चाहिए" : "I don't know / Need help"}
+            </button>
+          </div>
+        </>
       )}
-      
-      {/* Audio Response */}
+
+      {/* Audio response playback */}
       {audioUrl && (
         <div className="mt-4">
-          <AudioPlayer audioUrl={audioUrl} autoPlay={true} />
+          <AudioPlayer audioUrl={audioUrl} autoPlay onEnded={() => {}} />
         </div>
       )}
 
-      {/* Help panel */}
-      {helperText && (
-        <HelpPanel helperText={helperText} />
-      )}
+      {/* Helper panel */}
+      {helperText && <HelpPanel helperText={helperText} />}
     </div>
   );
 }
-

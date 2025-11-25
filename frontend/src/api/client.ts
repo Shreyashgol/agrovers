@@ -2,15 +2,13 @@
  * API Client for backend communication.
  * 
  * Handles all HTTP requests to the FastAPI backend.
- * 
- * To change API base URL:
- *   Update API_BASE_URL constant below
+ * Change API_BASE_URL if backend host/port changes.
  */
 
 import axios from 'axios';
 
-// API base URL - change this if backend runs on different port/host
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+// API base URL - make sure this matches your FastAPI prefix
+export const API_BASE_URL = 'http://localhost:8000/api/v1';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -32,6 +30,18 @@ export interface StartSessionResponse {
   question: string;
   step_number: number;
   total_steps: number;
+}
+
+export interface SoilTestResult {
+  color?: string;
+  moisture?: string;
+  smell?: string;
+  ph_category?: string;
+  ph_value?: number;
+  soil_type?: string;
+  earthworms?: string;
+  location?: string;
+  fertilizer_used?: string;
 }
 
 export interface NextMessageRequest {
@@ -57,18 +67,6 @@ export interface NextMessageResponse {
     combined_conf: number;
     asr_text?: string;
   };
-}
-
-export interface SoilTestResult {
-  color?: string;
-  moisture?: string;
-  smell?: string;
-  ph_category?: string;
-  ph_value?: number;
-  soil_type?: string;
-  earthworms?: string;
-  location?: string;
-  fertilizer_used?: string;
 }
 
 export interface SessionStateResponse {
@@ -104,15 +102,15 @@ export async function sendNext(
 ): Promise<NextMessageResponse> {
   const formData = new FormData();
   formData.append('session_id', sessionId);
-  
+
   if (userMessage) {
     formData.append('user_text', userMessage);
   }
-  
+
   if (audioBlob) {
-    formData.append('audio_file', audioBlob, 'audio.wav');
+    formData.append('audio_file', audioBlob, 'audio.webm');
   }
-  
+
   const response = await apiClient.post<NextMessageResponse>(
     '/session/next',
     formData,
@@ -126,7 +124,7 @@ export async function sendNext(
 }
 
 /**
- * Get current session state.
+ * Get current session state (optional, not used in main flow yet).
  */
 export async function getState(
   sessionId: string
@@ -136,4 +134,3 @@ export async function getState(
   );
   return response.data;
 }
-
