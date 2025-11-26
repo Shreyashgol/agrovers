@@ -180,11 +180,8 @@ async def get_session_state(session_id: str) -> SessionStateResponse:
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
     
-    # Check if complete
-    is_complete = session.current_parameter not in PARAMETER_ORDER or (
-        session.current_parameter == PARAMETER_ORDER[-1] and
-        all(getattr(session.answers, param) is not None for param in PARAMETER_ORDER)
-    )
+    # Check if complete - use the session's is_complete method
+    is_complete = session.is_complete()
     
     return SessionStateResponse(
         session_id=session.session_id,

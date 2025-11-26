@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Language, NextMessageResponse, SoilTestResult } from '../api/client';
 import { startSession, sendNext } from '../api/client';
+import { generateReport, getReportStatus, ReportStatus } from '../api/reports';
 
 // Layout & Components
 import { MainLayout } from '../components/layout/MainLayout';
 import { ProgressStepper } from '../components/ui/ProgressStepper';
 import NewChatInterface from '../components/NewChatInterface';
 import SummaryPage from '../components/SummaryPage';
+import { SoilReportDisplay } from '../components/ui/SoilReportDisplay';
+import { ComprehensiveSoilReport } from '../components/ui/ComprehensiveSoilReport';
+import { ReportLoadingScreen } from '../components/ui/ReportLoadingScreen';
 
 import { PARAMETER_ORDER } from '../config/labels';
 
@@ -41,6 +45,11 @@ export default function NewSoilWizard({ language, onReset }: NewSoilWizardProps)
   const [error, setError] = useState<string | null>(null);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [lastAnswer, setLastAnswer] = useState<{ parameter: string; value: string; displayValue?: string } | undefined>();
+  
+  // Report generation states
+  const [reportStatus, setReportStatus] = useState<ReportStatus | null>(null);
+  const [generatedReport, setGeneratedReport] = useState<any>(null);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
   // Initialize session
   useEffect(() => {
@@ -100,6 +109,13 @@ export default function NewSoilWizard({ language, onReset }: NewSoilWizardProps)
         setIsComplete(true);
         setHelperText(undefined);
         setAudioUrl(undefined);
+        
+        // Trigger report generation (don't await - let it run in background)
+        triggerReportGeneration().catch(console.error);
+        setHelperText(undefined);
+        setAudioUrl(undefined);
+        // Trigger report generation
+        generateReport(sessionId);
       } else if (res.helper_mode && res.helper_text) {
         setHelperText(res.helper_text);
       } else if (res.question) {
@@ -118,6 +134,44 @@ export default function NewSoilWizard({ language, onReset }: NewSoilWizardProps)
   const handleThemeToggle = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
     // TODO: Implement light theme
+  };
+
+  // Trigger report generation
+  const triggerReportGeneration = async () => {
+    if (!sessionId) return;
+
+    try {
+      setIsGeneratingReport(true);
+      
+      // Start report generation
+      await generateReport(sessionId);
+      
+      // Poll for status
+      const pollInterval = setInterval(async () => {
+        try {
+          const status = await getReportStatus(sessionId);
+          setReportStatus(status);
+          
+          if (status.status === 'completed') {
+            clearInterval(pollInterval);
+            setGeneratedReport(status.report);
+            setIsGeneratingReport(false);
+          } else if (status.status === 'failed') {
+            clearInterval(pollInterval);
+            setIsGeneratingReport(false);
+            setError(status.message || 'Failed to generate report');
+          }
+        } catch (err) {
+          console.error('Error polling report status:', err);
+        }
+      }, 2000); // Poll every 2 seconds
+      
+      // Cleanup on unmount
+      return () => clearInterval(pollInterval);
+    } catch (err) {
+      setIsGeneratingReport(false);
+      setError(err instanceof Error ? err.message : 'Failed to generate report');
+    }
   };
 
   // Build stepper steps
@@ -175,8 +229,47 @@ export default function NewSoilWizard({ language, onReset }: NewSoilWizardProps)
     );
   }
 
-  // Complete state
+  // Complete state - Show report
   if (isComplete) {
+    // Show loading screen while generating report
+    if (isGeneratingReport && reportStatus) {
+      return (
+        <ReportLoadingScreen
+          progress={reportStatus.progress}
+          message={reportStatus.message}
+          status={reportStatus.status}
+        />
+      );
+    }
+
+    // Show generated report
+    if (generatedReport) {
+      // Check if it's the comprehensive format (with soilAnalysis)
+      const isComprehensive = generatedReport.soilAnalysis && generatedReport.cropRecommendations;
+      
+      return (
+        <div className="min-h-screen bg-agrovers-bg-primary py-12 px-4">
+          <div className="max-w-6xl mx-auto">
+            {isComprehensive ? (
+              <ComprehensiveSoilReport report={generatedReport} />
+            ) : (
+              <SoilReportDisplay report={generatedReport} />
+            )}
+            
+            <div className="text-center mt-8">
+              <button
+                onClick={onReset}
+                className="px-8 py-4 bg-agrovers-accent-primary hover:bg-agrovers-accent-primary/90 text-white rounded-xl text-lg font-semibold transition-all hover:scale-105 active:scale-95"
+              >
+                {language === 'hi' ? 'नया टेस्ट शुरू करें' : 'Start New Test'}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Fallback to summary page if report generation failed
     return (
       <div className="min-h-screen bg-agrovers-bg-primary py-12">
         <SummaryPage answers={answers} language={language} isComplete={true} />

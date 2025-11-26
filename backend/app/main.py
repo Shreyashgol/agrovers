@@ -19,7 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from .config import settings
-from .routes import sessions
+from .routes import sessions, reports
 from .services.rag_engine import RAGEngine
 from .services.llm_adapter import create_llm_adapter
 
@@ -89,6 +89,7 @@ async def shutdown_event():
 
 # Include routers
 app.include_router(sessions.router)
+app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
 
 # Mount static files for audio
 audio_dir = Path(__file__).parent / "data" / "audio"

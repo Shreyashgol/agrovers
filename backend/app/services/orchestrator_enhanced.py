@@ -293,9 +293,11 @@ def _auto_fill_and_advance(
     next_param = get_next_parameter(current_param)
     print(f"→ Moving to next parameter: {next_param}")
     
+    # Update session's current parameter (None if complete)
+    session.current_parameter = next_param
+    
     if next_param:
         # More parameters to collect
-        session.current_parameter = next_param
         next_question = get_question_for_parameter(next_param, language)
         
         # Generate TTS for next question (ALL questions get audio)
@@ -322,10 +324,11 @@ def _auto_fill_and_advance(
             audit=audit,
         )
     else:
-        # All parameters collected
+        # All parameters collected - set current_parameter to None
+        session.current_parameter = None
         return NextMessageResponse(
             session_id=session.session_id,
-            parameter=current_param,
+            parameter="",  # Empty string to indicate completion
             answers=session.answers,
             is_complete=True,
             step_number=len(PARAMETER_ORDER),

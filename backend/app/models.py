@@ -56,6 +56,11 @@ class SessionState(BaseModel):
     helper_mode: bool = False  # True when showing RAG+LLM explanation
     created_at: float  # Unix timestamp
     updated_at: float  # Unix timestamp
+    
+    def is_complete(self) -> bool:
+        """Check if all required parameters have been collected."""
+        # Check if current_parameter is None (indicates completion)
+        return self.current_parameter is None or self.current_parameter == ""
 
 
 # API Request/Response Models

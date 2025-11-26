@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     hf_token: str | None = None  # Hugging Face token for private models
     
     # n8n Integration
-    n8n_webhook_url: str | None = None
+    n8n_webhook_url: str = "http://localhost:5678/webhook/soil-report"  # Default n8n webhook URL
     
     # Knowledge Base Paths (relative to backend/ directory)
     kb_raw_dir: str = "app/data/kb_raw"
