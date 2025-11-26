@@ -71,6 +71,7 @@ class StartSessionResponse(BaseModel):
     question: str
     step_number: int
     total_steps: int
+    audio_url: Optional[str] = None  # TTS audio URL for first question
 
 
 class NextMessageRequest(BaseModel):

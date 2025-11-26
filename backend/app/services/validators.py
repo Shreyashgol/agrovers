@@ -142,8 +142,8 @@ EARTHWORMS_MAPPINGS: Dict[str, Dict[str, str]] = {
 
 # Help/uncertainty indicators
 HELP_INDICATORS: Dict[str, List[str]] = {
-    "en": ["help", "don't know", "dont know", "dunno", "unsure", "not sure", "?", "idk"],
-    "hi": ["मदद", "पता नहीं", "समझ नहीं आया", "?", "नहीं पता"],
+    "en": ["help", "don't know", "dont know", "dunno", "unsure", "not sure", "?", "idk", "i don't know", "i dont know", "no idea", "need help"],
+    "hi": ["मदद", "पता नहीं", "समझ नहीं आया", "?", "नहीं पता", "मुझे नहीं पता", "मुझे पता नहीं", "मालूम नहीं", "मदद चाहिए"],
 }
 
 

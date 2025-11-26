@@ -109,23 +109,23 @@ class OllamaLLMAdapter(LLMAdapter):
         param_display = param_names.get(parameter, {}).get(language, parameter)
         
         if language == "hi":
-            full_prompt = f"""नीचे दिए गए संदर्भ से किसान भाई को {param_display} जांचने के 2-3 कदम बताओ:
+            full_prompt = f"""महत्वपूर्ण नियम: केवल नीचे दिए गए संदर्भ का उपयोग करें। कोई भी जानकारी का आविष्कार न करें।
 
 संदर्भ:
 {context}
 
-किसान भाई, {param_display} जांचने के लिए:
+ऊपर दिए गए संदर्भ से किसान भाई को {param_display} जांचने के सरल कदम बताओ। यदि संदर्भ में पूरी जानकारी नहीं है, तो जो उपलब्ध है उसी से मदद करो।
 
-कदम 1:"""
+किसान भाई, {param_display} जांचने के लिए:"""
         else:
-            full_prompt = f"""Using the context below, explain 2-3 steps to test {param_display}:
+            full_prompt = f"""CRITICAL RULE: Use ONLY the context below. Do NOT invent information.
 
 Context:
 {context}
 
-To test {param_display}:
+Using the context above, explain simple steps to test {param_display}. If the context is limited, provide guidance based on what's available.
 
-Step 1:"""
+To test {param_display}:"""
         
         # Call Ollama API
         try:
@@ -218,25 +218,34 @@ class GeminiLLMAdapter(LLMAdapter):
         # Build system prompt based on language
         if language == "hi":
             system_prompt = """आप एक मिट्टी परीक्षण सहायक हैं जो भारतीय किसानों की मदद करता है। 
-सरल हिंदी में बात करें, उन्हें "किसान भाई" कहकर संबोधित करें, और चरणबद्ध तरीके से समझाएं कि 
-मांगे गए पैरामीटर के लिए मिट्टी का परीक्षण कैसे करें। केवल प्रदान किए गए संदर्भ का उपयोग करें 
-और जानकारी का आविष्कार न करें।"""
+
+महत्वपूर्ण नियम:
+1. केवल और केवल प्रदान किए गए संदर्भ का उपयोग करें
+2. कोई भी जानकारी का आविष्कार न करें - यह सख्त मना है
+3. यदि संदर्भ सीमित है, तो उपलब्ध जानकारी से सरल मार्गदर्शन दें
+4. सरल हिंदी में बात करें और "किसान भाई" कहकर संबोधित करें
+5. 2-3 सरल कदमों में समझाएं"""
             
             user_prompt = f"""पैरामीटर: {parameter}
 किसान का संदेश: "{user_message}"
 
-ऊपर दिए गए संदर्भ का उपयोग करते हुए, समझाएं कि किसान को घर पर इस पैरामीटर को कैसे मापना चाहिए 
-और संभावित श्रेणियों का क्या अर्थ है। इसे छोटा और व्यावहारिक रखें।"""
+केवल ऊपर दिए गए संदर्भ का उपयोग करते हुए, किसान को घर पर {parameter} कैसे जांचना है यह समझाएं। 
+सरल, व्यावहारिक कदम बताएं। संदर्भ में न दी गई जानकारी न जोड़ें।"""
         else:
             system_prompt = """You are a soil testing assistant for Indian farmers. 
-Speak in simple English, and explain step-by-step how to test the soil for the requested parameter. 
-Use only the provided context and do not invent information."""
+
+CRITICAL RULES:
+1. Use ONLY and EXCLUSIVELY the provided context
+2. Do NOT invent ANY information - this is strictly forbidden
+3. If context is limited, provide simple guidance based on what's available
+4. Speak in simple English
+5. Explain in 2-3 simple steps"""
             
             user_prompt = f"""Parameter: {parameter}
 Farmer message: "{user_message}"
 
-Using the context above, explain how the farmer should measure this parameter at home and what 
-the possible categories mean. Keep it short and actionable."""
+Using ONLY the context above, explain how to test {parameter} at home. 
+Provide simple, actionable steps. Do NOT add information not in the context."""
         
         # Combine into full prompt
         full_prompt = f"""{system_prompt}

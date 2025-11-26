@@ -28,6 +28,7 @@ from .rag_engine import RAGEngine
 from .llm_adapter import LLMAdapter
 from .stt_service import STTService, ASRResult
 from .tts_service import TTSService
+from .answer_extractor import get_answer_extractor
 
 
 # Confidence weights for fusion
@@ -35,8 +36,8 @@ W_ASR = 0.20
 W_VALIDATOR = 0.60  # Trust validator more
 W_LLM = 0.20
 
-# Threshold for auto-fill - LOWERED for better flow
-AUTO_FILL_THRESHOLD = 0.50
+# Threshold for auto-fill - Balanced to accept valid answers but reject help requests
+AUTO_FILL_THRESHOLD = 0.60
 
 
 def compute_combined_confidence(
@@ -120,23 +121,111 @@ def handle_user_message_enhanced(
             tts_service
         ), audit
     
-    # Step 2: Validate with enhanced validator
-    validator_func = ENHANCED_VALIDATORS.get(current_param)
-    if not validator_func:
-        # Unknown parameter - skip
-        return _handle_unknown_parameter(session, language, tts_service), audit
+    # Step 2: Check if this is a help request FIRST
+    # Look for help indicators in the message
+    help_indicators_en = ["don't know", "dont know", "help", "how to check", "how do i", "not sure", "unsure", "guide me", "explain", "tell me how"]
+    help_indicators_hi = ["नहीं पता", "पता नहीं", "मदद", "कैसे जांचें", "कैसे चेक", "समझ नहीं", "मुझे बताओ", "समझाओ"]
     
-    validation_result: ValidationResult = validator_func(user_message, language)
+    # Phrases that mean "move forward" - NOT help requests
+    progress_indicators_en = ["completed", "done", "next", "move on", "continue", "proceed", "finished"]
+    progress_indicators_hi = ["पूरा", "हो गया", "अगला", "आगे बढ़ो"]
     
-    # Calculate validator confidence
-    if validation_result.is_confident and validation_result.value:
-        audit["validator_conf"] = 0.95  # High confidence
-    elif validation_result.value:
-        audit["validator_conf"] = 0.80  # Medium-high confidence
+    user_message_lower = user_message.lower()
+    is_help_request = False
+    is_progress_request = False
+    
+    # Check for progress indicators first
+    if language == "hi":
+        is_progress_request = any(indicator in user_message_lower for indicator in progress_indicators_hi)
     else:
-        audit["validator_conf"] = 0.20  # Low confidence
+        is_progress_request = any(indicator in user_message_lower for indicator in progress_indicators_en)
+    
+    # If it's a progress request, treat as "skip this step" - return to same question
+    if is_progress_request:
+        print(f"✓ Progress request detected: '{user_message}' - re-asking question")
+        next_question = get_question_for_parameter(current_param, language)
+        
+        audio_url = ""
+        if tts_service:
+            try:
+                audio_path = tts_service.synthesize(next_question, language)
+                audio_url = tts_service.get_audio_url(audio_path)
+            except Exception as e:
+                print(f"✗ TTS error: {e}")
+        
+        return NextMessageResponse(
+            session_id=session.session_id,
+            parameter=current_param,
+            question=next_question,
+            answers=session.answers,
+            is_complete=False,
+            step_number=get_step_number(current_param),
+            total_steps=len(PARAMETER_ORDER),
+            helper_mode=False,
+            audio_url=audio_url if audio_url else None,
+            audit=audit,
+        ), audit
+    
+    # Check for help indicators
+    if language == "hi":
+        is_help_request = any(indicator in user_message_lower for indicator in help_indicators_hi)
+    else:
+        is_help_request = any(indicator in user_message_lower for indicator in help_indicators_en)
+    
+    # If it's clearly a help request, skip extraction and go straight to RAG helper
+    if is_help_request:
+        print(f"✓ Help request detected: '{user_message}'")
+        audit["validator_conf"] = 0.0
+        audit["help_request"] = True
+        # Jump directly to Step 4 (RAG helper mode)
+        validation_result = ValidationResult(value=None, is_confident=False)
+    else:
+        # Try LLM-based answer extraction
+        extractor = get_answer_extractor()
+        expected_values = _get_expected_values(current_param)
+        
+        extracted_value, extraction_conf = extractor.extract_answer(
+            user_message, current_param, language, expected_values
+        )
+        
+        # If LLM extracted an answer, use it
+        if extracted_value and extraction_conf >= 0.80:
+            print(f"✓ LLM extracted: '{extracted_value}' (conf: {extraction_conf:.2f})")
+            validation_result = ValidationResult(value=extracted_value, is_confident=True)
+            audit["validator_conf"] = extraction_conf
+            audit["llm_extraction"] = extracted_value
+        else:
+            # Fall back to traditional validator
+            validator_func = ENHANCED_VALIDATORS.get(current_param)
+            if not validator_func:
+                # Unknown parameter - skip
+                return _handle_unknown_parameter(session, language, tts_service), audit
+            
+            validation_result: ValidationResult = validator_func(user_message, language)
+            
+            # Calculate validator confidence
+            if validation_result.is_confident and validation_result.value:
+                audit["validator_conf"] = 0.95  # High confidence
+            elif validation_result.value:
+                audit["validator_conf"] = 0.70  # Medium confidence
+            else:
+                audit["validator_conf"] = 0.10  # Very low confidence - likely help request
     
     # Step 3: Decide if we need helper mode
+    # If validator is confident AND has a value, accept immediately (skip LLM)
+    if validation_result.is_confident and validation_result.value:
+        # High confidence from validator - auto-fill immediately
+        audit["combined_conf"] = audit["validator_conf"]
+        audit["llm_conf"] = 0.0  # Skipped LLM
+        return _auto_fill_and_advance(
+            session,
+            current_param,
+            validation_result,
+            audit,
+            language,
+            tts_service
+        ), audit
+    
     # Compute preliminary combined confidence (without LLM)
     prelim_conf = compute_combined_confidence(
         audit["asr_conf"],
@@ -145,7 +234,7 @@ def handle_user_message_enhanced(
     )
     
     # If valid answer with decent confidence, auto-fill immediately
-    if validation_result.value and prelim_conf >= 0.50:
+    if validation_result.value and prelim_conf >= 0.60:
         audit["combined_conf"] = prelim_conf
         audit["llm_conf"] = 0.0  # Skipped LLM
         return _auto_fill_and_advance(
@@ -158,6 +247,11 @@ def handle_user_message_enhanced(
         ), audit
     
     # Step 4: Enter helper mode - call RAG + LLM
+    # This happens when:
+    # - User explicitly asked for help
+    # - No valid answer was extracted
+    # - Confidence is too low
+    print(f"✓ Entering helper mode for parameter: {current_param}")
     query = _build_rag_query(current_param, user_message, language)
     
     if rag_engine.is_ready():
@@ -175,7 +269,6 @@ def handle_user_message_enhanced(
     )
     
     # For now, assume LLM confidence based on response length and content
-    # TODO: Parse JSON response from LLM to get actual confidence
     audit["llm_conf"] = _estimate_llm_confidence(helper_text, chunks)
     
     # Recompute combined confidence with LLM
@@ -185,19 +278,10 @@ def handle_user_message_enhanced(
         audit["llm_conf"]
     )
     
-    # If combined confidence now high enough, auto-fill
-    if audit["combined_conf"] >= AUTO_FILL_THRESHOLD and validation_result.value:
-        return _auto_fill_and_advance(
-            session,
-            current_param,
-            validation_result,
-            audit,
-            language,
-            tts_service
-        ), audit
-    
-    # Otherwise, return helper mode response
+    # We're in helper mode - NEVER auto-fill, always show guidance
+    # The user needs to provide a proper answer after seeing the help
     session.helper_mode = True
+    print(f"✓ Showing helper guidance for: {current_param}")
     
     # Generate TTS for helper text
     audio_url = ""
@@ -339,6 +423,21 @@ def _build_rag_query(parameter: str, user_message: str, language: Language) -> s
     
     base_query = query_templates.get(parameter, {}).get(language, parameter)
     return f"{base_query} {user_message}"
+
+
+def _get_expected_values(parameter: str) -> list[str]:
+    """Get list of expected values for a parameter."""
+    expected_values_map = {
+        "color": ["black", "red", "brown", "yellow", "grey"],
+        "moisture": ["dry", "wet", "moist", "very_dry"],
+        "smell": ["sweet", "earthy", "sour", "rotten", "no_smell"],
+        "ph": ["acidic", "neutral", "alkaline", "very_acidic", "very_alkaline"],
+        "soil_type": ["clay", "sandy", "loamy", "silt"],
+        "earthworms": ["yes", "no", "many", "few"],
+        "location": [],  # Free text
+        "fertilizer_used": [],  # Free text or yes/no
+    }
+    return expected_values_map.get(parameter, [])
 
 
 def _estimate_llm_confidence(helper_text: str, chunks: list) -> float:

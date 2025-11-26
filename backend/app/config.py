@@ -93,6 +93,7 @@ class Settings(BaseSettings):
                 self,
                 "_allowed_origins",
                 [
+                    "http://localhost:5174",  # Vite on new port
                     "http://localhost:5173",  # Vite default
                     "http://localhost:3000",  # Alternative frontend port
                 ]
@@ -103,6 +104,7 @@ class Settings(BaseSettings):
         """Get allowed origins list."""
         if self._allowed_origins is None:
             return [
+                "http://localhost:5174",
                 "http://localhost:5173",
                 "http://localhost:3000",
             ]

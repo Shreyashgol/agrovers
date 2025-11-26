@@ -186,10 +186,10 @@ def validate_moisture_enhanced(text: str, language: Language) -> ValidationResul
     
     best_label, confidence = validator.match_to_canonical(text, canonical_labels, language)
     
-    if best_label and confidence >= 0.85:
+    if best_label and confidence >= 0.60:
         return ValidationResult(value=best_label, is_confident=True)
-    elif best_label and confidence >= 0.70:
-        return ValidationResult(value=best_label, is_confident=False)
+    elif best_label and confidence >= 0.40:
+        return ValidationResult(value=best_label, is_confident=True)
     else:
         return ValidationResult(value=None, is_confident=False)
 
@@ -211,10 +211,10 @@ def validate_smell_enhanced(text: str, language: Language) -> ValidationResult:
     
     best_label, confidence = validator.match_to_canonical(text, canonical_labels, language)
     
-    if best_label and confidence >= 0.85:
+    if best_label and confidence >= 0.60:
         return ValidationResult(value=best_label, is_confident=True)
-    elif best_label and confidence >= 0.70:
-        return ValidationResult(value=best_label, is_confident=False)
+    elif best_label and confidence >= 0.40:
+        return ValidationResult(value=best_label, is_confident=True)
     else:
         return ValidationResult(value=None, is_confident=False)
 
@@ -263,10 +263,10 @@ def validate_ph_enhanced(text: str, language: Language) -> ValidationResult:
     
     best_label, confidence = validator.match_to_canonical(text, canonical_labels, language)
     
-    if best_label and confidence >= 0.85:
+    if best_label and confidence >= 0.60:
         return ValidationResult(value=best_label, is_confident=True)
-    elif best_label and confidence >= 0.70:
-        return ValidationResult(value=best_label, is_confident=False)
+    elif best_label and confidence >= 0.40:
+        return ValidationResult(value=best_label, is_confident=True)
     else:
         return ValidationResult(value=None, is_confident=False)
 
@@ -287,10 +287,10 @@ def validate_soil_type_enhanced(text: str, language: Language) -> ValidationResu
     
     best_label, confidence = validator.match_to_canonical(text, canonical_labels, language)
     
-    if best_label and confidence >= 0.85:
+    if best_label and confidence >= 0.60:
         return ValidationResult(value=best_label, is_confident=True)
-    elif best_label and confidence >= 0.70:
-        return ValidationResult(value=best_label, is_confident=False)
+    elif best_label and confidence >= 0.40:
+        return ValidationResult(value=best_label, is_confident=True)
     else:
         return ValidationResult(value=None, is_confident=False)
 
@@ -311,10 +311,10 @@ def validate_earthworms_enhanced(text: str, language: Language) -> ValidationRes
     
     best_label, confidence = validator.match_to_canonical(text, canonical_labels, language)
     
-    if best_label and confidence >= 0.85:
+    if best_label and confidence >= 0.60:
         return ValidationResult(value=best_label, is_confident=True)
-    elif best_label and confidence >= 0.70:
-        return ValidationResult(value=best_label, is_confident=False)
+    elif best_label and confidence >= 0.40:
+        return ValidationResult(value=best_label, is_confident=True)
     else:
         return ValidationResult(value=None, is_confident=False)
 
@@ -348,7 +348,7 @@ def validate_fertilizer_used_enhanced(text: str, language: Language) -> Validati
     
     best_label, confidence = validator.match_to_canonical(text, yes_no_labels, language)
     
-    if best_label and confidence >= 0.85:
+    if best_label and confidence >= 0.60:
         return ValidationResult(value=best_label, is_confident=True)
     
     # If not yes/no, accept as fertilizer name (if reasonable length)

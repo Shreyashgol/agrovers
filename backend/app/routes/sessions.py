@@ -89,12 +89,22 @@ async def start_session(request: StartSessionRequest) -> StartSessionResponse:
     session = session_manager.create_session(request.language)
     parameter, question = get_initial_question(request.language)
     
+    # Generate TTS for first question
+    tts_service = create_tts_service()
+    audio_url = ""
+    try:
+        audio_path = tts_service.synthesize(question, request.language)
+        audio_url = tts_service.get_audio_url(audio_path, base_url="http://localhost:8001")
+    except Exception as e:
+        print(f"✗ TTS error for first question: {e}")
+    
     return StartSessionResponse(
         session_id=session.session_id,
         parameter=parameter,
         question=question,
         step_number=1,
         total_steps=len(PARAMETER_ORDER),
+        audio_url=audio_url if audio_url else None,
     )
 
 

@@ -179,7 +179,7 @@ class TTSService:
             print(f"✗ OpenAI TTS error: {e}")
             return ""
     
-    def get_audio_url(self, relative_path: str, base_url: str = "http://localhost:8000") -> str:
+    def get_audio_url(self, relative_path: str, base_url: str = "http://localhost:8001") -> str:
         """
         Convert relative path to full URL.
         
@@ -188,7 +188,7 @@ class TTSService:
             base_url: Base URL of the API
             
         Returns:
-            Full URL: 'http://localhost:8000/audio/tts_abc123.mp3'
+            Full URL: 'http://localhost:8001/audio/tts_abc123.mp3'
         """
         if not relative_path:
             return ""

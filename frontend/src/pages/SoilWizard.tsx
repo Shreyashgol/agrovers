@@ -4,8 +4,8 @@ import { Language, NextMessageResponse, SoilTestResult } from "../api/client";
 import { startSession, sendNext } from "../api/client";
 
 import Stepper from "../components/Stepper";
-import ParameterStep from "../components/ParameterStep";
 import SummaryPage from "../components/SummaryPage";
+import ChatInterface from "../components/ChatInterface";
 
 import { PARAMETER_ORDER } from "../config/labels";   // IMPORTANT FIX
 
@@ -22,7 +22,6 @@ export default function SoilWizard({ language, onReset }: SoilWizardProps) {
   const [currentQuestion, setCurrentQuestion] = useState<string>("");
   const [stepNumber, setStepNumber] = useState(1);
   const [totalSteps, setTotalSteps] = useState(8);
-  const [completedSteps, setCompletedSteps] = useState(0);  // NEW FIX
 
   // Extra data
   const [helperText, setHelperText] = useState<string | undefined>();
@@ -48,8 +47,10 @@ export default function SoilWizard({ language, onReset }: SoilWizardProps) {
         setCurrentQuestion(res.question);
         setStepNumber(res.step_number);
         setTotalSteps(res.total_steps);
-
-        setCompletedSteps(0); // Reset sidebar
+        // Set initial audio URL if available
+        if ('audio_url' in res) {
+          setAudioUrl((res as any).audio_url);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to start session");
       } finally {
@@ -76,10 +77,6 @@ export default function SoilWizard({ language, onReset }: SoilWizardProps) {
       setAnswers(res.answers);
       setStepNumber(res.step_number);
       setTotalSteps(res.total_steps);
-
-      // update sidebar completed steps
-      setCompletedSteps(res.step_number - 1);
-
       setAudioUrl(res.audio_url);
 
       if (res.is_complete) {
@@ -145,31 +142,47 @@ export default function SoilWizard({ language, onReset }: SoilWizardProps) {
   }
 
  return (
-  <div className="min-h-screen bg-gray-900 py-10 px-4 flex justify-center">
-    <div className="w-full max-w-6xl bg-[#0f1818] rounded-2xl shadow-xl p-6 md:p-10 flex gap-8">
+  <div className="min-h-screen bg-gray-900 flex justify-center items-center p-4">
+    <div className="w-full max-w-6xl h-[90vh] bg-[#0f1818] rounded-2xl shadow-2xl flex overflow-hidden">
 
       {/* Sidebar */}
-      <Stepper
-        currentStep={stepNumber}
-        totalSteps={totalSteps}
-        currentParameter={currentParameter}
-        language={language}
-        allParameters={PARAMETER_ORDER}
-        completedSteps={stepNumber - 1}
-      />
+      <div className="w-64 bg-gray-800 border-r border-gray-700 p-6">
+        <Stepper
+          currentStep={stepNumber}
+          totalSteps={totalSteps}
+          currentParameter={currentParameter}
+          language={language}
+          allParameters={PARAMETER_ORDER}
+          completedSteps={stepNumber - 1}
+        />
+      </div>
 
-      {/* Question + Options */}
-      <div className="flex-1">
-        <div className="mb-6">
-          <div className="text-xl font-bold text-white">
-            {currentQuestion}
+      {/* Chat Interface */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <div className="bg-gray-800 border-b border-gray-700 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-white">
+                {language === "hi" ? "मिट्टी परीक्षण सहायक" : "Soil Test Assistant"}
+              </h2>
+              <p className="text-sm text-gray-400">
+                {language === "hi" 
+                  ? `चरण ${stepNumber} / ${totalSteps}` 
+                  : `Step ${stepNumber} of ${totalSteps}`}
+              </p>
+            </div>
+            <button
+              onClick={onReset}
+              className="px-4 py-2 rounded-lg bg-gray-700 text-white text-sm hover:bg-gray-600"
+            >
+              {language === "hi" ? "रीसेट" : "Reset"}
+            </button>
           </div>
-          <p className="text-sm text-gray-300 mt-1">
-            ईमानदारी से जवाब दें — यह बेहतर सुझाव देगा।
-          </p>
         </div>
 
-        <ParameterStep
+        {/* Chat Messages */}
+        <ChatInterface
           parameter={currentParameter}
           question={currentQuestion}
           language={language}
@@ -177,11 +190,8 @@ export default function SoilWizard({ language, onReset }: SoilWizardProps) {
           audioUrl={audioUrl}
           onSubmit={handleSubmit}
           onHelpRequest={handleHelpRequest}
+          isSubmitting={isLoading}
         />
-
-        {isLoading && (
-          <div className="mt-4 text-center text-gray-400">Processing...</div>
-        )}
       </div>
     </div>
   </div>
