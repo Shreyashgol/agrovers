@@ -33,11 +33,13 @@ class Settings(BaseSettings):
     # LLM Configuration
     gemini_api_key: str | None = None
     gemini_model_name: str = "gemini-1.5-flash"  # Using flash for faster responses
-    llm_provider: Literal["gemini", "ollama", "local"] = "gemini"  # Support for Ollama and local models
+    llm_provider: Literal["gemini", "ollama", "local", "groq"] = "gemini"  # Support for Groq, Ollama and local models
     ollama_model_name: str = "phi3"  # Ollama model to use (phi3, mistral, llama2, etc.)
+    groq_llm_api_key: str | None = None  # Groq API key for LLM (text generation)
+    groq_llm_model: str = "llama-3.3-70b-versatile"  # Groq model for LLM tasks
     
     # ASR/TTS Configuration
-    groq_api_key: str | None = None
+    groq_api_key: str | None = None  # Groq API key for STT (Whisper)
     asr_provider: Literal["groq", "local_whisper", "openai"] = "groq"
     tts_provider: Literal["gtts", "coqui", "openai"] = "gtts"
     

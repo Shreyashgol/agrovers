@@ -24,11 +24,13 @@ from .orchestrator import (
     get_question_for_parameter,
 )
 from .validators_enhanced import ENHANCED_VALIDATORS
+from .orchestrator import validate_name
 from .rag_engine import RAGEngine
 from .llm_adapter import LLMAdapter
 from .stt_service import STTService, ASRResult
 from .tts_service import TTSService
 from .answer_extractor import get_answer_extractor
+from .intent_classifier import get_intent_classifier
 
 
 # Confidence weights for fusion
@@ -121,62 +123,27 @@ def handle_user_message_enhanced(
             tts_service
         ), audit
     
-    # Step 2: Check if this is a help request FIRST
-    # Look for help indicators in the message
-    help_indicators_en = ["don't know", "dont know", "help", "how to check", "how do i", "not sure", "unsure", "guide me", "explain", "tell me how"]
-    help_indicators_hi = ["नहीं पता", "पता नहीं", "मदद", "कैसे जांचें", "कैसे चेक", "समझ नहीं", "मुझे बताओ", "समझाओ"]
+    # Step 2: Use LLM to intelligently classify user intent
+    classifier = get_intent_classifier()
+    intent, intent_confidence = classifier.classify_intent(user_message, current_param, language)
     
-    # Phrases that mean "move forward" - NOT help requests
-    progress_indicators_en = ["completed", "done", "next", "move on", "continue", "proceed", "finished"]
-    progress_indicators_hi = ["पूरा", "हो गया", "अगला", "आगे बढ़ो"]
+    print(f"✓ Intent classification: {intent} (confidence: {intent_confidence:.2f})")
+    audit["intent"] = intent
+    audit["intent_confidence"] = intent_confidence
     
-    user_message_lower = user_message.lower()
-    is_help_request = False
-    is_progress_request = False
-    
-    # Check for progress indicators first
-    if language == "hi":
-        is_progress_request = any(indicator in user_message_lower for indicator in progress_indicators_hi)
-    else:
-        is_progress_request = any(indicator in user_message_lower for indicator in progress_indicators_en)
-    
-    # If it's a progress request, treat as "skip this step" - return to same question
-    if is_progress_request:
-        print(f"✓ Progress request detected: '{user_message}' - re-asking question")
-        next_question = get_question_for_parameter(current_param, language)
-        
-        audio_url = ""
-        if tts_service:
-            try:
-                audio_path = tts_service.synthesize(next_question, language)
-                audio_url = tts_service.get_audio_url(audio_path)
-            except Exception as e:
-                print(f"✗ TTS error: {e}")
-        
-        return NextMessageResponse(
-            session_id=session.session_id,
-            parameter=current_param,
-            question=next_question,
-            answers=session.answers,
-            is_complete=False,
-            step_number=get_step_number(current_param),
-            total_steps=len(PARAMETER_ORDER),
-            helper_mode=False,
-            audio_url=audio_url if audio_url else None,
-            audit=audit,
-        ), audit
-    
-    # Check for help indicators
-    if language == "hi":
-        is_help_request = any(indicator in user_message_lower for indicator in help_indicators_hi)
-    else:
-        is_help_request = any(indicator in user_message_lower for indicator in help_indicators_en)
+    # Check if this is a follow-up question (confidence 0.75 indicates follow-up)
+    is_follow_up = intent == "help_request" and intent_confidence == 0.75
     
     # If it's clearly a help request, skip extraction and go straight to RAG helper
-    if is_help_request:
-        print(f"✓ Help request detected: '{user_message}'")
+    if intent == "help_request" and intent_confidence >= 0.70:
+        if is_follow_up:
+            print(f"✓ Follow-up question detected: '{user_message}' - providing additional guidance")
+        else:
+            print(f"✓ Help request detected: '{user_message}'")
+        
         audit["validator_conf"] = 0.0
         audit["help_request"] = True
+        audit["is_follow_up"] = is_follow_up
         # Jump directly to Step 4 (RAG helper mode)
         validation_result = ValidationResult(value=None, is_confident=False)
     else:
@@ -255,17 +222,18 @@ def handle_user_message_enhanced(
     query = _build_rag_query(current_param, user_message, language)
     
     if rag_engine.is_ready():
-        chunks = rag_engine.retrieve(query, current_param, language, k=8)  # Get more chunks for better context
+        chunks = rag_engine.retrieve(query, current_param, language, k=10)  # Get more chunks for better context
         audit["retrieved_chunks"] = chunks[:2]  # Store first 2 for audit (shorter)
+        print(f"✓ Retrieved {len(chunks)} chunks for {current_param}")
     else:
         chunks = []
     
-    # Call helper LLM
+    # Call helper LLM with more chunks for better context
     helper_text = llm.generate_helper(
         parameter=current_param,
         language=language,
         user_message=user_message,
-        retrieved_chunks=chunks,
+        retrieved_chunks=chunks[:5] if chunks else [],  # Use top 5 chunks
     )
     
     # For now, assume LLM confidence based on response length and content
@@ -315,24 +283,29 @@ def _auto_fill_and_advance(
     tts_service: Optional[TTSService],
 ) -> NextMessageResponse:
     """Auto-fill answer and advance to next parameter."""
+    print(f"✓ Auto-filling {current_param} with value: {validation.value}")
+    
     # Update answers
     _update_answers(session.answers, current_param, validation)
     session.helper_mode = False
     
     # Move to next parameter
     next_param = get_next_parameter(current_param)
+    print(f"→ Moving to next parameter: {next_param}")
     
     if next_param:
         # More parameters to collect
         session.current_parameter = next_param
         next_question = get_question_for_parameter(next_param, language)
         
-        # Generate TTS for next question
+        # Generate TTS for next question (ALL questions get audio)
         audio_url = ""
         if tts_service:
+            print(f"🔊 Generating TTS for {next_param}: '{next_question[:50]}...'")
             try:
                 audio_path = tts_service.synthesize(next_question, language)
                 audio_url = tts_service.get_audio_url(audio_path)
+                print(f"✓ TTS generated: {audio_url}")
             except Exception as e:
                 print(f"✗ TTS error: {e}")
         
@@ -364,7 +337,9 @@ def _auto_fill_and_advance(
 
 def _update_answers(answers: SoilTestResult, parameter: str, validation: ValidationResult) -> None:
     """Update answers dict with validated value."""
-    if parameter == "color":
+    if parameter == "name":
+        answers.name = validation.value
+    elif parameter == "color":
         answers.color = validation.value
     elif parameter == "moisture":
         answers.moisture = validation.value

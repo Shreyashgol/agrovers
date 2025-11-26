@@ -39,6 +39,7 @@ from .llm_adapter import LLMAdapter
 
 # Parameter order - defines the wizard flow
 PARAMETER_ORDER = [
+    "name",  # NEW: Farmer's name (first question, no audio)
     "color",
     "moisture",
     "smell",
@@ -52,6 +53,10 @@ PARAMETER_ORDER = [
 
 # Question text for each parameter (can be overridden by knowledge base)
 PARAMETER_QUESTIONS: dict[str, dict[Language, str]] = {
+    "name": {
+        "en": "Welcome! What is your name?",
+        "hi": "स्वागत है! आपका नाम क्या है?",
+    },
     "color": {
         "en": "What is the color of your soil?",
         "hi": "आपकी मिट्टी का रंग क्या है?",
@@ -87,8 +92,18 @@ PARAMETER_QUESTIONS: dict[str, dict[Language, str]] = {
 }
 
 
+# Simple name validator
+def validate_name(text: str, language: Language) -> ValidationResult:
+    """Validate name - accepts any text with at least 2 characters."""
+    normalized = text.strip()
+    if len(normalized) >= 2:
+        return ValidationResult(value=normalized, is_confident=True)
+    return ValidationResult(value=None, is_confident=False)
+
+
 # Validator function mapping
 VALIDATORS = {
+    "name": validate_name,
     "color": validate_color,
     "moisture": validate_moisture,
     "smell": validate_smell,

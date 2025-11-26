@@ -14,6 +14,20 @@ export interface ParameterLabels {
 }
 
 export const LABELS: Record<string, Record<Language, ParameterLabels>> = {
+  name: {
+    en: {
+      question: 'Welcome! What is your name?',
+      options: [],
+      placeholder: 'Enter your name...',
+      helpButton: "Need help",
+    },
+    hi: {
+      question: 'स्वागत है! आपका नाम क्या है?',
+      options: [],
+      placeholder: 'अपना नाम लिखें...',
+      helpButton: 'मदद चाहिए',
+    },
+  },
   color: {
     en: {
       question: 'What is the color of your soil?',
@@ -129,6 +143,7 @@ export const LABELS: Record<string, Record<Language, ParameterLabels>> = {
 };
 
 export const PARAMETER_ORDER = [
+  'name',
   'color',
   'moisture',
   'smell',

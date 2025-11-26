@@ -109,23 +109,49 @@ class OllamaLLMAdapter(LLMAdapter):
         param_display = param_names.get(parameter, {}).get(language, parameter)
         
         if language == "hi":
-            full_prompt = f"""महत्वपूर्ण नियम: केवल नीचे दिए गए संदर्भ का उपयोग करें। कोई भी जानकारी का आविष्कार न करें।
+            # Check if this is a follow-up question
+            if "step" in user_message.lower() or "कदम" in user_message.lower() or "problem" in user_message.lower():
+                full_prompt = f"""किसान का सवाल: "{user_message}"
 
 संदर्भ:
 {context}
 
-ऊपर दिए गए संदर्भ से किसान भाई को {param_display} जांचने के सरल कदम बताओ। यदि संदर्भ में पूरी जानकारी नहीं है, तो जो उपलब्ध है उसी से मदद करो।
+किसान को {param_display} के बारे में उनके सवाल का जवाब दो। अगर वे किसी खास कदम के बारे में पूछ रहे हैं, तो उस कदम को विस्तार से समझाओ।
 
-किसान भाई, {param_display} जांचने के लिए:"""
+जवाब:"""
+            else:
+                full_prompt = f"""नीचे दिए गए संदर्भ का उपयोग करके किसान भाई को {param_display} जांचने में मदद करो।
+
+संदर्भ:
+{context}
+
+ऊपर दी गई जानकारी से किसान को {param_display} जांचने के लिए सभी कदम एक साथ बताओ। सभी कदमों को पूरा करो, बीच में मत रुको।
+
+किसान भाई, {param_display} जांचने के लिए ये सभी कदम अपनाएं:
+
+कदम 1:"""
         else:
-            full_prompt = f"""CRITICAL RULE: Use ONLY the context below. Do NOT invent information.
+            # Check if this is a follow-up question
+            if "step" in user_message.lower() or "problem" in user_message.lower() or "after" in user_message.lower():
+                full_prompt = f"""Farmer's question: "{user_message}"
 
 Context:
 {context}
 
-Using the context above, explain simple steps to test {param_display}. If the context is limited, provide guidance based on what's available.
+Answer the farmer's specific question about {param_display}. If they're asking about a specific step, explain that step in more detail.
 
-To test {param_display}:"""
+Answer:"""
+            else:
+                full_prompt = f"""Help the farmer test {param_display} using the context below.
+
+Context:
+{context}
+
+Based on the information above, provide ALL steps together to test {param_display}. Complete all steps, don't stop in the middle.
+
+To test {param_display}, follow ALL these steps:
+
+Step 1:"""
         
         # Call Ollama API
         try:
@@ -136,10 +162,12 @@ To test {param_display}:"""
                     "prompt": full_prompt,
                     "stream": False,
                     "options": {
-                        "temperature": 0.3,  # Balanced for structured output
-                        "num_predict": 150,  # Allow full steps
-                        "top_p": 0.85,
-                        "stop": ["\n\n\n", "किसान भाई:", "Farmer:"],  # Stop at section breaks
+                        "temperature": 0.4,  # Slightly higher for more helpful responses
+                        "num_predict": 400,  # Allow more detailed steps (increased)
+                        "top_p": 0.9,
+                        "top_k": 40,
+                        "repeat_penalty": 1.1,
+                        "stop": ["Let me know", "let me know", "मुझे बताएं", "अगर आप", "if you'd like"],  # Stop at asking for more
                     }
                 },
                 timeout=20
@@ -224,13 +252,16 @@ class GeminiLLMAdapter(LLMAdapter):
 2. कोई भी जानकारी का आविष्कार न करें - यह सख्त मना है
 3. यदि संदर्भ सीमित है, तो उपलब्ध जानकारी से सरल मार्गदर्शन दें
 4. सरल हिंदी में बात करें और "किसान भाई" कहकर संबोधित करें
-5. 2-3 सरल कदमों में समझाएं"""
+5. विस्तृत कदम-दर-कदम निर्देश दें (3-5 कदम)
+6. हर कदम को "कदम 1:", "कदम 2:" से शुरू करें"""
             
             user_prompt = f"""पैरामीटर: {parameter}
 किसान का संदेश: "{user_message}"
 
-केवल ऊपर दिए गए संदर्भ का उपयोग करते हुए, किसान को घर पर {parameter} कैसे जांचना है यह समझाएं। 
-सरल, व्यावहारिक कदम बताएं। संदर्भ में न दी गई जानकारी न जोड़ें।"""
+केवल ऊपर दिए गए संदर्भ का उपयोग करते हुए, किसान को घर पर {parameter} कैसे जांचना है यह विस्तार से समझाएं। 
+हर कदम को स्पष्ट रूप से बताएं। संदर्भ में न दी गई जानकारी न जोड़ें।
+
+किसान भाई, {parameter} जांचने के लिए:"""
         else:
             system_prompt = """You are a soil testing assistant for Indian farmers. 
 
@@ -239,13 +270,16 @@ CRITICAL RULES:
 2. Do NOT invent ANY information - this is strictly forbidden
 3. If context is limited, provide simple guidance based on what's available
 4. Speak in simple English
-5. Explain in 2-3 simple steps"""
+5. Provide detailed step-by-step instructions (3-5 steps)
+6. Start each step with "Step 1:", "Step 2:", etc."""
             
             user_prompt = f"""Parameter: {parameter}
 Farmer message: "{user_message}"
 
-Using ONLY the context above, explain how to test {parameter} at home. 
-Provide simple, actionable steps. Do NOT add information not in the context."""
+Using ONLY the context above, explain in detail how to test {parameter} at home. 
+Provide clear, actionable steps. Do NOT add information not in the context.
+
+To test {parameter}:"""
         
         # Combine into full prompt
         full_prompt = f"""{system_prompt}
@@ -268,8 +302,8 @@ Context from knowledge base:
                 ]
                 
                 config = types.GenerateContentConfig(
-                    temperature=0.7,
-                    max_output_tokens=1000,  # Increased to avoid truncation
+                    temperature=0.5,  # Lower for more consistent steps
+                    max_output_tokens=1500,  # More tokens for detailed steps
                 )
                 
                 response = self.client.models.generate_content(
@@ -324,14 +358,162 @@ Context from knowledge base:
                 return f"Sorry, there was an issue getting information about {parameter}. Please try again."
 
 
+class GroqLLMAdapter(LLMAdapter):
+    """
+    Groq API adapter for fast LLM inference.
+    
+    Uses Groq's ultra-fast inference for helper mode, intent classification, and answer extraction.
+    Much faster than local models and suitable for production deployment.
+    """
+    
+    def __init__(self, api_key: str, model_name: str = "llama-3.3-70b-versatile"):
+        """
+        Initialize Groq adapter.
+        
+        Args:
+            api_key: Groq API key
+            model_name: Model to use (llama-3.3-70b-versatile, mixtral-8x7b-32768, etc.)
+        """
+        self.api_key = api_key
+        self.model_name = model_name
+        self.base_url = "https://api.groq.com/openai/v1/chat/completions"
+        print(f"✓ Initialized Groq LLM adapter with model: {model_name}")
+    
+    def generate_helper(
+        self,
+        parameter: str,
+        language: Language,
+        user_message: str,
+        retrieved_chunks: List[str],
+    ) -> str:
+        """Generate helper explanation using Groq API."""
+        import requests
+        
+        # Build context from retrieved chunks
+        context = "\n\n".join(retrieved_chunks[:5])  # Use top 5 chunks
+        
+        # Build system prompt
+        if language == "hi":
+            system_prompt = """आप एक मिट्टी परीक्षण सहायक हैं जो भारतीय किसानों की मदद करता है। 
+
+महत्वपूर्ण नियम:
+1. केवल और केवल प्रदान किए गए संदर्भ का उपयोग करें
+2. कोई भी जानकारी का आविष्कार न करें - यह सख्त मना है
+3. यदि संदर्भ सीमित है, तो उपलब्ध जानकारी से सरल मार्गदर्शन दें
+4. सरल हिंदी में बात करें और "किसान भाई" कहकर संबोधित करें
+5. विस्तृत कदम-दर-कदम निर्देश दें (3-5 कदम)
+6. हर कदम को "कदम 1:", "कदम 2:" से शुरू करें"""
+            
+            # Check if this is a follow-up question
+            if "step" in user_message.lower() or "कदम" in user_message.lower() or "problem" in user_message.lower():
+                user_prompt = f"""किसान का सवाल: "{user_message}"
+
+संदर्भ:
+{context}
+
+किसान को {parameter} के बारे में उनके सवाल का जवाब दो। अगर वे किसी खास कदम के बारे में पूछ रहे हैं, तो उस कदम को विस्तार से समझाओ।
+
+जवाब:"""
+            else:
+                user_prompt = f"""पैरामीटर: {parameter}
+किसान का संदेश: "{user_message}"
+
+संदर्भ:
+{context}
+
+केवल ऊपर दिए गए संदर्भ का उपयोग करते हुए, किसान को घर पर {parameter} कैसे जांचना है यह विस्तार से समझाएं। 
+हर कदम को स्पष्ट रूप से बताएं। संदर्भ में न दी गई जानकारी न जोड़ें।
+
+किसान भाई, {parameter} जांचने के लिए:"""
+        else:
+            system_prompt = """You are a soil testing assistant for Indian farmers. 
+
+CRITICAL RULES:
+1. Use ONLY and EXCLUSIVELY the provided context
+2. Do NOT invent ANY information - this is strictly forbidden
+3. If context is limited, provide simple guidance based on what's available
+4. Speak in simple English
+5. Provide detailed step-by-step instructions (3-5 steps)
+6. Start each step with "Step 1:", "Step 2:", etc."""
+            
+            # Check if this is a follow-up question
+            if "step" in user_message.lower() or "problem" in user_message.lower() or "after" in user_message.lower():
+                user_prompt = f"""Farmer's question: "{user_message}"
+
+Context:
+{context}
+
+Answer the farmer's specific question about {parameter}. If they're asking about a specific step, explain that step in more detail.
+
+Answer:"""
+            else:
+                user_prompt = f"""Parameter: {parameter}
+Farmer message: "{user_message}"
+
+Context:
+{context}
+
+Using ONLY the context above, explain in detail how to test {parameter} at home. 
+Provide clear, actionable steps. Do NOT add information not in the context.
+
+To test {parameter}:"""
+        
+        try:
+            response = requests.post(
+                self.base_url,
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": self.model_name,
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    "temperature": 0.5,
+                    "max_tokens": 1500,
+                    "top_p": 0.9,
+                },
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                return result["choices"][0]["message"]["content"].strip()
+            else:
+                print(f"✗ Groq API error: {response.status_code} - {response.text}")
+                return self._fallback_response(parameter, language)
+        
+        except Exception as e:
+            print(f"✗ Groq error: {e}")
+            return self._fallback_response(parameter, language)
+    
+    def _fallback_response(self, parameter: str, language: Language) -> str:
+        """Fallback response if Groq fails."""
+        if language == "hi":
+            return f"किसान भाई, {parameter} की जांच के लिए कृपया विकल्पों में से चुनें या फिर से प्रयास करें।"
+        else:
+            return f"Please select from the options or try again to test {parameter}."
+
+
 def create_llm_adapter() -> LLMAdapter:
     """
     Factory function to create appropriate LLM adapter based on config.
     
     Returns:
-        LLMAdapter instance (Gemini, Ollama, or Local)
+        LLMAdapter instance (Groq, Gemini, Ollama, or Local)
     """
-    if settings.llm_provider == "ollama":
+    if settings.llm_provider == "groq":
+        # Use Groq (fast cloud LLM)
+        if not settings.groq_llm_api_key:
+            raise ValueError("GROQ_LLM_API_KEY not set in environment")
+        return GroqLLMAdapter(
+            api_key=settings.groq_llm_api_key,
+            model_name=settings.groq_llm_model
+        )
+    
+    elif settings.llm_provider == "ollama":
         # Use Ollama (local LLM)
         model_name = getattr(settings, 'ollama_model_name', 'mistral')
         return OllamaLLMAdapter(model_name=model_name)

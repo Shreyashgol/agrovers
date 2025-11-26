@@ -8,10 +8,6 @@ Each session tracks:
 - All answers collected so far
 - Language preference
 - Helper mode status
-
-To swap to Redis/DB:
-- Replace dict storage with Redis/DB calls
-- Keep the same interface (create_session, get_session, update_session)
 """
 
 import uuid
@@ -47,7 +43,7 @@ class SessionManager:
         session = SessionState(
             session_id=session_id,
             language=language,
-            current_parameter="color",  # First parameter
+            current_parameter="name",  # First parameter (NEW: name before color)
             answers=SoilTestResult(),
             helper_mode=False,
             created_at=now,

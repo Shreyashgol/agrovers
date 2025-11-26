@@ -23,7 +23,12 @@ class AnswerExtractor:
         """Initialize answer extractor with LLM."""
         self.llm_provider = llm_provider
         
-        if llm_provider == "ollama":
+        if llm_provider == "groq":
+            self.base_url = "https://api.groq.com/openai/v1/chat/completions"
+            self.api_key = getattr(settings, 'groq_llm_api_key', None)
+            self.model_name = getattr(settings, 'groq_llm_model', 'llama-3.3-70b-versatile')
+            print(f"✓ Answer extractor initialized with Groq ({self.model_name})")
+        elif llm_provider == "ollama":
             self.base_url = "http://localhost:11434"
             self.model_name = getattr(settings, 'ollama_model_name', 'llama3.2')
             print(f"✓ Answer extractor initialized with Ollama ({self.model_name})")
@@ -59,7 +64,9 @@ class AnswerExtractor:
         )
         
         # Call LLM
-        if self.llm_provider == "ollama":
+        if self.llm_provider == "groq":
+            return self._extract_with_groq(prompt, expected_values)
+        elif self.llm_provider == "ollama":
             return self._extract_with_ollama(prompt, expected_values)
         elif self.llm_provider == "gemini":
             return self._extract_with_gemini(prompt, expected_values)
@@ -100,6 +107,46 @@ If no answer found, write "NONE".
 Answer:"""
         
         return prompt
+    
+    def _extract_with_groq(
+        self,
+        prompt: str,
+        expected_values: list[str]
+    ) -> Tuple[Optional[str], float]:
+        """Extract answer using Groq."""
+        import requests
+        
+        try:
+            response = requests.post(
+                self.base_url,
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": self.model_name,
+                    "messages": [
+                        {"role": "user", "content": prompt}
+                    ],
+                    "temperature": 0.1,
+                    "max_tokens": 10,
+                },
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                extracted_text = result["choices"][0]["message"]["content"].strip().lower()
+                
+                # Parse response
+                return self._parse_extraction(extracted_text, expected_values)
+            else:
+                print(f"✗ Groq extraction error: {response.status_code}")
+                return None, 0.0
+        
+        except Exception as e:
+            print(f"✗ Groq extraction error: {e}")
+            return None, 0.0
     
     def _extract_with_ollama(
         self,

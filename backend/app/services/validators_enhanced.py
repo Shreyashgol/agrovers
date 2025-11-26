@@ -367,8 +367,18 @@ def _check_help_request(text: str, language: Language) -> bool:
     return any(indicator in normalized for indicator in indicators)
 
 
+# Simple name validator
+def validate_name_enhanced(text: str, language: Language) -> ValidationResult:
+    """Validate name - accepts any text with at least 2 characters."""
+    normalized = text.strip()
+    if len(normalized) >= 2:
+        return ValidationResult(value=normalized, is_confident=True)
+    return ValidationResult(value=None, is_confident=False)
+
+
 # Export enhanced validators
 ENHANCED_VALIDATORS = {
+    "name": validate_name_enhanced,
     "color": validate_color_enhanced,
     "moisture": validate_moisture_enhanced,
     "smell": validate_smell_enhanced,

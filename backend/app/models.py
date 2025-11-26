@@ -27,6 +27,7 @@ class SoilTestResult(BaseModel):
     
     All fields are optional until filled during the wizard flow.
     """
+    name: Optional[str] = None  # NEW: Farmer's name
     color: Optional[str] = None
     moisture: Optional[str] = None
     smell: Optional[str] = None
