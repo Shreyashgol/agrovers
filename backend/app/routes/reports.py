@@ -77,7 +77,8 @@ async def generate_report_background(session_id: str, session):
             "message": "Analyzing soil parameters..."
         }
         
-        # Prepare soil data (always in English for LLM)
+        # Prepare soil data with user's language
+        user_language = session.language  # 'hi' or 'en'
         soil_data = {
             "id": session_id,
             "name": session.answers.name or "",
@@ -89,25 +90,44 @@ async def generate_report_background(session_id: str, session):
             "earthworms": session.answers.earthworms or "",
             "location": session.answers.location or "",
             "previousFertilizers": session.answers.fertilizer_used or "",
+            "language": user_language  # Pass user's language
         }
         
         # Update progress
         report_status_store[session_id]["progress"] = 40
-        report_status_store[session_id]["message"] = "Generating crop recommendations..."
+        if user_language == "hi":
+            report_status_store[session_id]["message"] = "फसल सिफारिशें तैयार की जा रही हैं..."
+        else:
+            report_status_store[session_id]["message"] = "Generating crop recommendations..."
         
-        # Generate report in English using LangChain orchestrator
-        report_english = await report_orchestrator.generate_complete_report(soil_data)
+        # Generate report directly in user's language
+        report_data = await report_orchestrator.generate_complete_report(soil_data)
         
-        # Update progress
-        report_status_store[session_id]["progress"] = 70
-        report_status_store[session_id]["message"] = "Translating to Hindi..."
-        
-        # Translate to Hindi (with fallback to English if translation fails)
-        try:
-            report_hindi = await report_translator.translate_complete_report(report_english)
-        except Exception as e:
-            logger.error(f"Translation failed, using English as fallback: {e}")
-            report_hindi = report_english  # Fallback to English
+        # For Hindi users, the report is already in Hindi
+        # For English users, the report is in English
+        # We provide both versions for language toggle
+        if user_language == "hi":
+            report_hindi = report_data
+            # Generate English version for toggle
+            report_status_store[session_id]["progress"] = 70
+            report_status_store[session_id]["message"] = "अंग्रेजी संस्करण तैयार किया जा रहा है..."
+            soil_data_en = {**soil_data, "language": "en"}
+            try:
+                report_english = await report_orchestrator.generate_complete_report(soil_data_en)
+            except Exception as e:
+                logger.error(f"English generation failed: {e}")
+                report_english = report_hindi  # Fallback
+        else:
+            report_english = report_data
+            # Generate Hindi version for toggle
+            report_status_store[session_id]["progress"] = 70
+            report_status_store[session_id]["message"] = "Translating to Hindi..."
+            soil_data_hi = {**soil_data, "language": "hi"}
+            try:
+                report_hindi = await report_orchestrator.generate_complete_report(soil_data_hi)
+            except Exception as e:
+                logger.error(f"Hindi generation failed: {e}")
+                report_hindi = report_english  # Fallback
         
         # Update progress
         report_status_store[session_id]["progress"] = 90

@@ -1,0 +1,196 @@
+{
+  "english": {
+    "soilAnalysis": {
+      "assessment": "The soil in सोनीपत, हरियाणा has a black color, is wet, and has an earthy smell, indicating good organic matter content. The acidic pH level may require lime application to balance it. The clay soil type can be challenging for root growth, but the presence of earthworms shows good biological activity. Overall, the soil has potential for good fertility with proper management.",
+      "pros": [
+        "good organic matter content",
+        "presence of earthworms indicates healthy biological activity",
+        "can retain water well due to clay type",
+        "previous fertilizer application can benefit crop growth",
+        "has potential for good fertility"
+      ],
+      "cons": [
+        "acidic pH level may affect crop growth",
+        "clay soil can be challenging for root growth",
+        "waterlogging may occur due to wet moisture level"
+      ],
+      "rating": "Good"
+    },
+    "cropRecommendations": [
+      {
+        "crop": "Rice",
+        "reason": "grows well in clay soil with acidic pH and high moisture",
+        "season": "Kharif (Jun-Jul)"
+      },
+      {
+        "crop": "Sugarcane",
+        "reason": "thrives in wet clay soil with earthworm activity",
+        "season": "Oct-Nov"
+      },
+      {
+        "crop": "Urad Dal",
+        "reason": "tolerates acidic soil and clay texture",
+        "season": "Kharif (Jun-Jul)"
+      },
+      {
+        "crop": "Okra",
+        "reason": "suitable for clay soil with high moisture and warm climate",
+        "season": "Kharif (Apr-May)"
+      },
+      {
+        "crop": "Wheat",
+        "reason": "can grow in clay soil with slightly acidic pH",
+        "season": "Rabi (Oct-Nov)"
+      },
+      {
+        "crop": "Sunflower",
+        "reason": "earthworms help in soil aeration for sunflower growth in clay soil",
+        "season": "Rabi (Oct-Nov)"
+      }
+    ],
+    "fertilizerRecommendations": [
+      {
+        "fertilizer": "Compost",
+        "type": "Organic",
+        "application": "3 tons/acre",
+        "timing": "Pre-planting",
+        "purpose": "Improve soil structure and fertility for rice and sugarcane"
+      },
+      {
+        "fertilizer": "Farm Yard Manure (FYM)",
+        "type": "Organic",
+        "application": "2 tons/acre",
+        "timing": "At planting",
+        "purpose": "Provide nutrients for urad dal and improve soil health"
+      },
+      {
+        "fertilizer": "Rhizobium bio-fertilizer",
+        "type": "Organic",
+        "application": "10 kg/acre",
+        "timing": "At sowing",
+        "purpose": "Fix nitrogen for urad dal and other legumes"
+      },
+      {
+        "fertilizer": "NPK (10:20:10)",
+        "type": "Chemical",
+        "application": "100 kg/acre",
+        "timing": "At planting",
+        "purpose": "Provide balanced nutrients for rice and sugarcane"
+      },
+      {
+        "fertilizer": "Urea",
+        "type": "Chemical",
+        "application": "50 kg/acre",
+        "timing": "At tillering stage of rice",
+        "purpose": "Boost nitrogen for rice crop"
+      },
+      {
+        "fertilizer": "DAP (18:46:0)",
+        "type": "Chemical",
+        "application": "75 kg/acre",
+        "timing": "At sowing",
+        "purpose": "Provide phosphorus for root development of sugarcane and urad dal"
+      }
+    ]
+  },
+  "hindi": {
+    "soilAnalysis": {
+      "assessment": "इस मिट्टी का रंग काला है, जो इसकी उर्वरता को दर्शाता है। नमी का स्तर उच्च है, जो फसलों के विकास के लिए अनुकूल है। मिट्टी की गंध पृथ्वी जैसी है, जो जैविक गतिविधि की उपस्थिति को दर्शाती है। मिट्टी का pH स्तर अम्लीय है, जो कुछ फसलों के लिए उपयुक्त हो सकता है। मिट्टी का प्रकार मिट्टी है, जो पानी को बनाए रखने में मदद करता है। केंचुए और जैविक गतिविधि की उपस्थिति मिट्टी के स्वास्थ्य को दर्शाती है। स्थान सोनीपत, हरियाणा है, जो कृषि के लिए उपयुक्त है। पिछली खाद की उपस्थिति मिट्टी की उर्वरता को बढ़ाती है।",
+      "pros": [
+        "मिट्टी का काला रंग उर्वरता को दर्शाता है",
+        "उच्च नमी स्तर फसलों के विकास के लिए अनुकूल है",
+        "जैविक गतिविधि मिट्टी के स्वास्थ्य को दर्शाती है",
+        "मिट्टी का प्रकार पानी को बनाए रखने में मदद करता है",
+        "पिछली खाद की उपस्थिति मिट्टी की उर्वरता को बढ़ाती है"
+      ],
+      "cons": [
+        "मिट्टी का अम्लीय pH स्तर कुछ फसलों के लिए उपयुक्त नहीं हो सकता है",
+        "मिट्टी का उच्च नमी स्तर जलभराव का कारण बन सकता है",
+        "मिट्टी का मिट्टी प्रकार भारी हो सकता है"
+      ],
+      "rating": "Good"
+    },
+    "cropRecommendations": [
+      {
+        "crop": "धान",
+        "reason": "चिकनी मिट्टी और अम्लीय pH में अच्छी तरह से उगता है",
+        "season": "खरीफ (जून-जुलाई)"
+      },
+      {
+        "crop": "सरसों",
+        "reason": "हरियाणा में ठंडे मौसम में अच्छी तरह से उगता है और चिकनी मिट्टी के लिए उपयुक्त है",
+        "season": "रबी (अक्टूबर-नवंबर)"
+      },
+      {
+        "crop": "मटर",
+        "reason": "ठंडे मौसम और अम्लीय मिट्टी में अच्छी तरह से उगता है",
+        "season": "रबी (अक्टूबर-नवंबर)"
+      },
+      {
+        "crop": "गन्ना",
+        "reason": "गीली मिट्टी और गर्म मौसम में अच्छी तरह से उगता है",
+        "season": "गर्मियों (फरवरी-मार्च)"
+      },
+      {
+        "crop": "उरद",
+        "reason": "चिकनी मिट्टी और अम्लीय pH में अच्छी तरह से उगता है",
+        "season": "खरीफ (जून-जुलाई)"
+      },
+      {
+        "crop": "मूंग",
+        "reason": "हरियाणा में गर्म मौसम में अच्छी तरह से उगता है और चिकनी मिट्टी के लिए उपयुक्त है",
+        "season": "गर्मियों (फरवरी-मार्च)"
+      }
+    ],
+    "fertilizerRecommendations": [
+      {
+        "fertilizer": "गोबर की खाद",
+        "type": "Organic",
+        "application": "5 टन/एकड़",
+        "timing": "बुवाई से पहले",
+        "purpose": "मिट्टी की उर्वरता बढ़ाने और केंचुओं को आकर्षित करने के लिए"
+      },
+      {
+        "fertilizer": "कंपोस्ट",
+        "type": "Organic",
+        "application": "3 टन/एकड़",
+        "timing": "बुवाई के समय",
+        "purpose": "मिट्टी में जैविक पदार्थों की मात्रा बढ़ाने और पोषक तत्वों को उपलब्ध कराने के लिए"
+      },
+      {
+        "fertilizer": "जैव-उर्वरक",
+        "type": "Organic",
+        "application": "10 किलो/एकड़",
+        "timing": "बुवाई के 15 दिन बाद",
+        "purpose": "मिट्टी में जैविक गतिविधि बढ़ाने और पोषक तत्वों को उपलब्ध कराने के लिए"
+      },
+      {
+        "fertilizer": "NPK (10:20:10)",
+        "type": "Chemical",
+        "application": "50 किलो/एकड़",
+        "timing": "बुवाई के समय",
+        "purpose": "धान, सरसों, और मटर की फसलों के लिए आवश्यक पोषक तत्व प्रदान करने के लिए"
+      },
+      {
+        "fertilizer": "यूरिया",
+        "type": "Chemical",
+        "application": "20 किलो/एकड़",
+        "timing": "बुवाई के 20 दिन बाद",
+        "purpose": "फसलों के विकास के लिए नाइट्रोजन की आपूर्ति करने के लिए"
+      },
+      {
+        "fertilizer": "DAP (18:46:0)",
+        "type": "Chemical",
+        "application": "30 किलो/एकड़",
+        "timing": "बुवाई के समय",
+        "purpose": "फसलों के विकास के लिए फॉस्फोरस की आपूर्ति करने के लिए"
+      }
+    ]
+  },
+  "metadata": {
+    "sessionId": "0d6c12a0-08e4-4159-b48d-851ed54415d0",
+    "generatedAt": "2025-11-28 23:10:32.332713",
+    "location": "सोनीपत, हरियाणा",
+    "soilType": "clay"
+  }
+}

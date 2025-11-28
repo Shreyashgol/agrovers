@@ -80,9 +80,39 @@ class ReportOrchestrator:
     async def generate_soil_analysis(self, soil_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Agent 1: Soil Science Expert
-        Always generates in English (translation happens separately)
+        Generates in the specified language (Hindi or English)
         """
-        system_prompt = """You are a soil science expert specializing in Indian agriculture.
+        language = soil_data.get('language', 'en')
+        is_hindi = language == 'hi'
+        
+        if is_hindi:
+            system_prompt = """आप एक मिट्टी विज्ञान विशेषज्ञ हैं जो भारतीय कृषि में विशेषज्ञता रखते हैं।
+
+कार्य: मिट्टी के डेटा का विश्लेषण करें और प्रदान करें:
+1) assessment: मिट्टी के स्वास्थ्य का विस्तृत विश्लेषण (3-4 वाक्य) जिसमें रंग, नमी, गंध, pH, मिट्टी का प्रकार, जैविक गतिविधि और स्थान का उल्लेख हो
+2) pros: 4-5 सकारात्मक विशेषताएं (छोटे, किसान-अनुकूल बिंदु)
+3) cons: 3-4 सीमाएं या चिंताएं
+4) rating: इनमें से एक [Excellent, Good, Fair, Poor]
+
+JSON format में return करें:
+{"assessment":"...","pros":["..."],"cons":["..."],"rating":"..."}
+
+कोई markdown नहीं, कोई अतिरिक्त keys नहीं। किसानों के लिए सरल भाषा का उपयोग करें।"""
+
+            user_prompt = f"""इस मिट्टी के डेटा का विश्लेषण करें:
+
+मिट्टी का रंग: {soil_data.get('soilColor', 'अज्ञात')}
+नमी का स्तर: {soil_data.get('moistureLevel', 'अज्ञात')}
+मिट्टी की गंध: {soil_data.get('soilSmell', 'अज्ञात')}
+pH स्तर: {soil_data.get('phLevel', 'अज्ञात')}
+मिट्टी का प्रकार: {soil_data.get('soilType', 'अज्ञात')}
+केंचुए/जैविक गतिविधि: {soil_data.get('earthworms', 'अज्ञात')}
+स्थान: {soil_data.get('location', 'अज्ञात')}
+पिछली खाद: {soil_data.get('previousFertilizers', 'कोई नहीं')}
+
+JSON format में व्यापक मिट्टी विश्लेषण प्रदान करें।"""
+        else:
+            system_prompt = """You are a soil science expert specializing in Indian agriculture.
 
 Task: Analyze the soil data and provide:
 1) assessment: detailed soil-health analysis (3-4 sentences) referencing color, moisture, smell, pH, soil_type, biological_activity, and location
@@ -95,7 +125,7 @@ Return as JSON object exactly:
 
 No markdown, no additional keys. Use simple language for farmers."""
 
-        user_prompt = f"""Analyze this soil data:
+            user_prompt = f"""Analyze this soil data:
 
 Soil Color: {soil_data.get('soilColor', 'unknown')}
 Moisture Level: {soil_data.get('moistureLevel', 'unknown')}
@@ -138,14 +168,45 @@ Provide comprehensive soil analysis in JSON format."""
     async def generate_crop_recommendations(self, soil_data: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
         Agent 2: Crop Specialist
-        Always generates in English (translation happens separately)
+        Generates in the specified language (Hindi or English)
         """
+        language = soil_data.get('language', 'en')
+        is_hindi = language == 'hi'
         location = soil_data.get('location', 'India')
         soil_type = soil_data.get('soilType', 'unknown')
         ph = soil_data.get('phLevel', 'unknown')
         moisture = soil_data.get('moistureLevel', 'unknown')
         
-        system_prompt = """You are an agricultural crop specialist with expertise in Indian farming.
+        if is_hindi:
+            system_prompt = """आप एक कृषि फसल विशेषज्ञ हैं जो भारतीय खेती में विशेषज्ञता रखते हैं।
+
+कार्य: मिट्टी और स्थान के आधार पर 6 फसलों की सिफारिश करें। प्रत्येक फसल के लिए शामिल करें:
+- crop: फसल का नाम (हिंदी में)
+- reason: एक वाक्य में कारण (मिट्टी के मापदंडों से जुड़ा)
+- season: स्थानीय बुवाई का मौसम
+
+JSON array में return करें:
+[{"crop":"धान","reason":"...","season":"खरीफ (जून-जुलाई)"}]
+
+कोई markdown नहीं। किसानों के लिए सरल भाषा का उपयोग करें।"""
+
+            user_prompt = f"""इन परिस्थितियों के लिए 6 उपयुक्त फसलों की सिफारिश करें:
+
+मिट्टी का प्रकार: {soil_type}
+pH स्तर: {ph}
+नमी: {moisture}
+स्थान: {location}
+केंचुए: {soil_data.get('earthworms', 'अज्ञात')}
+
+आवश्यकताएं:
+- मिट्टी के प्रकार और pH के लिए उपयुक्त
+- स्थान/जलवायु के लिए उपयुक्त
+- भारत में आमतौर पर उगाई जाने वाली
+- अनाज, दालें, सब्जियां, नकदी फसलों का मिश्रण
+
+6 फसल सिफारिशों के साथ JSON array return करें।"""
+        else:
+            system_prompt = """You are an agricultural crop specialist with expertise in Indian farming.
 
 Task: Based on soil and location, recommend 6 crops. For each crop include:
 - crop: string (crop name in English)
@@ -157,7 +218,7 @@ Return as JSON array of objects:
 
 No markdown, no explanations. Use simple language for farmers."""
 
-        user_prompt = f"""Recommend 6 suitable crops for:
+            user_prompt = f"""Recommend 6 suitable crops for:
 
 Soil Type: {soil_type}
 pH Level: {ph}
@@ -215,11 +276,44 @@ Return JSON array with 6 crop recommendations."""
     ) -> List[Dict[str, Any]]:
         """
         Agent 3: Fertilizer Expert
-        Always generates in English (translation happens separately)
+        Generates in the specified language (Hindi or English)
         """
+        language = soil_data.get('language', 'en')
+        is_hindi = language == 'hi'
         crop_names = ", ".join([c['crop'] for c in crops[:3]])
         
-        system_prompt = """You are a fertilizer and soil nutrition expert.
+        if is_hindi:
+            system_prompt = """आप एक उर्वरक और मिट्टी पोषण विशेषज्ञ हैं।
+
+कार्य: 6 उर्वरक सिफारिशें प्रदान करें। प्रत्येक के लिए:
+- fertilizer: नाम (जैविक या रासायनिक)
+- type: "Organic" या "Chemical"
+- application: मात्रा इकाइयों के साथ (जैसे "50 किग्रा/एकड़" या "5 टन/एकड़")
+- timing: कब लगाएं (जैसे "बुवाई से पहले", "फूल आने पर")
+- purpose: यह उर्वरक क्यों सिफारिश किया गया है
+
+JSON array में return करें:
+[{"fertilizer":"गोबर की खाद","type":"Organic","application":"5 टन/एकड़","timing":"बुवाई से पहले","purpose":"..."}]
+
+कोई markdown नहीं। किसानों के लिए सरल भाषा का उपयोग करें।"""
+
+            user_prompt = f"""इन परिस्थितियों के लिए 6 उर्वरकों की सिफारिश करें:
+
+मिट्टी का प्रकार: {soil_data.get('soilType', 'अज्ञात')}
+pH स्तर: {soil_data.get('phLevel', 'अज्ञात')}
+पिछली खाद: {soil_data.get('previousFertilizers', 'कोई नहीं')}
+केंचुए: {soil_data.get('earthworms', 'अज्ञात')}
+सिफारिश की गई फसलें: {crop_names}
+
+शामिल करें:
+- 2-3 जैविक विकल्प (गोबर की खाद, कंपोस्ट, जैव-उर्वरक)
+- 3-4 रासायनिक विकल्प (NPK, यूरिया, DAP, सूक्ष्म पोषक तत्व)
+- विशिष्ट मात्रा
+- स्पष्ट समय
+
+6 उर्वरक सिफारिशों के साथ JSON array return करें।"""
+        else:
+            system_prompt = """You are a fertilizer and soil nutrition expert.
 
 Task: Provide 6 fertilizer recommendations. For each:
 - fertilizer: name (organic or chemical)
@@ -233,7 +327,7 @@ Return as JSON array:
 
 No markdown, no explanations. Use simple language for farmers."""
 
-        user_prompt = f"""Recommend 6 fertilizers for:
+            user_prompt = f"""Recommend 6 fertilizers for:
 
 Soil Type: {soil_data.get('soilType', 'unknown')}
 pH Level: {soil_data.get('phLevel', 'unknown')}
