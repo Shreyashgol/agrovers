@@ -229,7 +229,7 @@ export default function NewSoilWizard({ language, onReset }: NewSoilWizardProps)
     );
   }
 
-  // Complete state - Show report
+  // Complete state - Show report (NO SUMMARY PAGE)
   if (isComplete) {
     // Show loading screen while generating report
     if (isGeneratingReport && reportStatus) {
@@ -244,16 +244,27 @@ export default function NewSoilWizard({ language, onReset }: NewSoilWizardProps)
 
     // Show generated report
     if (generatedReport) {
+      console.log('📊 Generated Report:', generatedReport);
+      
+      // Check if it's the new multilingual format (with english/hindi keys)
+      const isMultilingual = generatedReport.english && generatedReport.hindi;
+      console.log('🌐 Is Multilingual:', isMultilingual);
+      
       // Check if it's the comprehensive format (with soilAnalysis)
-      const isComprehensive = generatedReport.soilAnalysis && generatedReport.cropRecommendations;
+      const reportData = isMultilingual ? generatedReport.english : generatedReport;
+      const isComprehensive = reportData.soilAnalysis && reportData.cropRecommendations;
+      console.log('📋 Is Comprehensive:', isComprehensive);
+      console.log('📄 Report Data:', reportData);
       
       return (
         <div className="min-h-screen bg-agrovers-bg-primary py-12 px-4">
           <div className="max-w-6xl mx-auto">
-            {isComprehensive ? (
-              <ComprehensiveSoilReport report={generatedReport} />
+            {isComprehensive && isMultilingual ? (
+              <ComprehensiveSoilReport report={generatedReport} sessionId={sessionId} />
+            ) : isComprehensive ? (
+              <ComprehensiveSoilReport report={{ english: reportData, hindi: reportData, metadata: {} }} sessionId={sessionId} />
             ) : (
-              <SoilReportDisplay report={generatedReport} />
+              <SoilReportDisplay report={reportData} />
             )}
             
             <div className="text-center mt-8">
@@ -269,18 +280,14 @@ export default function NewSoilWizard({ language, onReset }: NewSoilWizardProps)
       );
     }
 
-    // Fallback to summary page if report generation failed
+    // Still generating - show loading
     return (
-      <div className="min-h-screen bg-agrovers-bg-primary py-12">
-        <SummaryPage answers={answers} language={language} isComplete={true} />
-
-        <div className="text-center mt-6">
-          <button
-            onClick={onReset}
-            className="px-8 py-4 bg-agrovers-accent-primary hover:bg-agrovers-accent-primary/90 text-white rounded-xl text-lg font-semibold transition-all hover:scale-105 active:scale-95"
-          >
-            {language === 'hi' ? 'नया टेस्ट शुरू करें' : 'Start New Test'}
-          </button>
+      <div className="min-h-screen bg-agrovers-bg-primary flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-agrovers-accent-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-agrovers-text-secondary">
+            {language === 'hi' ? 'रिपोर्ट तैयार हो रही है...' : 'Generating report...'}
+          </p>
         </div>
       </div>
     );

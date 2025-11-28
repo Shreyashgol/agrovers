@@ -44,19 +44,29 @@ interface ComprehensiveReportData {
 }
 
 interface ComprehensiveSoilReportProps {
-  report: ComprehensiveReportData;
+  report: {
+    english: ComprehensiveReportData;
+    hindi: ComprehensiveReportData;
+    metadata?: any;
+  };
+  sessionId: string;
   onClose?: () => void;
 }
 
 export const ComprehensiveSoilReport: React.FC<ComprehensiveSoilReportProps> = ({
   report,
+  sessionId,
   onClose,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [language, setLanguage] = useState<'english' | 'hindi'>('english');
 
   useEffect(() => {
     setTimeout(() => setIsVisible(true), 100);
   }, []);
+
+  // Get current language report
+  const currentReport = report[language];
 
   const getRatingColor = (rating: string) => {
     switch (rating.toLowerCase()) {
@@ -84,14 +94,38 @@ export const ComprehensiveSoilReport: React.FC<ComprehensiveSoilReportProps> = (
     }
   };
 
-  const handleDownload = () => {
-    console.log('Download report');
-    // TODO: Implement PDF download
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:8001/api/reports/download/${sessionId}/pdf?language=${language}`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Failed to download PDF');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `soil_report_${sessionId}_${language}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      alert('Failed to download PDF. Please try again.');
+    }
   };
 
   const handleShare = () => {
     console.log('Share report');
     // TODO: Implement share functionality
+  };
+
+  const toggleLanguage = () => {
+    setLanguage(prev => prev === 'english' ? 'hindi' : 'english');
   };
 
   return (
@@ -119,9 +153,16 @@ export const ComprehensiveSoilReport: React.FC<ComprehensiveSoilReportProps> = (
             </div>
             <div className="flex gap-2">
               <button
+                onClick={toggleLanguage}
+                className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors font-semibold text-white text-sm"
+                title="Toggle Language"
+              >
+                {language === 'english' ? 'हिंदी' : 'English'}
+              </button>
+              <button
                 onClick={handleDownload}
                 className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-                title="Download Report"
+                title="Download PDF"
               >
                 <Download className="w-5 h-5 text-white" />
               </button>
@@ -147,11 +188,11 @@ export const ComprehensiveSoilReport: React.FC<ComprehensiveSoilReportProps> = (
               </h3>
               <div
                 className={`px-4 py-2 rounded-full border flex items-center gap-2 ${getRatingColor(
-                  report.soilAnalysis.rating
+                  currentReport.soilAnalysis.rating
                 )}`}
               >
                 <Star className="w-5 h-5 fill-current" />
-                <span className="font-bold">{report.soilAnalysis.rating}</span>
+                <span className="font-bold">{currentReport.soilAnalysis.rating}</span>
               </div>
             </div>
 
@@ -160,20 +201,20 @@ export const ComprehensiveSoilReport: React.FC<ComprehensiveSoilReportProps> = (
               <div className="flex items-center justify-between mb-3">
                 <span className="text-gray-300">Soil Health Score</span>
                 <span className="text-2xl font-bold text-green-400">
-                  {getRatingScore(report.soilAnalysis.rating)}/100
+                  {getRatingScore(currentReport.soilAnalysis.rating)}/100
                 </span>
               </div>
               <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-1000 ease-out"
-                  style={{ width: `${getRatingScore(report.soilAnalysis.rating)}%` }}
+                  style={{ width: `${getRatingScore(currentReport.soilAnalysis.rating)}%` }}
                 />
               </div>
             </div>
 
             {/* Assessment */}
             <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
-              <p className="text-gray-300 leading-relaxed">{report.soilAnalysis.assessment}</p>
+              <p className="text-gray-300 leading-relaxed">{currentReport.soilAnalysis.assessment}</p>
             </div>
 
             {/* Pros and Cons */}
@@ -185,7 +226,7 @@ export const ComprehensiveSoilReport: React.FC<ComprehensiveSoilReportProps> = (
                   Strengths
                 </h4>
                 <ul className="space-y-2">
-                  {report.soilAnalysis.pros.map((pro, index) => (
+                  {currentReport.soilAnalysis.pros.map((pro, index) => (
                     <li key={index} className="flex gap-3 text-gray-300 text-sm">
                       <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
                       <span>{pro}</span>
@@ -201,7 +242,7 @@ export const ComprehensiveSoilReport: React.FC<ComprehensiveSoilReportProps> = (
                   Areas to Watch
                 </h4>
                 <ul className="space-y-2">
-                  {report.soilAnalysis.cons.map((con, index) => (
+                  {currentReport.soilAnalysis.cons.map((con, index) => (
                     <li key={index} className="flex gap-3 text-gray-300 text-sm">
                       <AlertTriangle className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
                       <span>{con}</span>
@@ -219,7 +260,7 @@ export const ComprehensiveSoilReport: React.FC<ComprehensiveSoilReportProps> = (
               Recommended Crops
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {report.cropRecommendations.map((crop, index) => (
+              {currentReport.cropRecommendations.map((crop, index) => (
                 <div
                   key={index}
                   className="bg-gray-800/50 border border-gray-700 rounded-xl p-5 hover:border-green-500/50 transition-all duration-300 animate-fade-in"
@@ -246,7 +287,7 @@ export const ComprehensiveSoilReport: React.FC<ComprehensiveSoilReportProps> = (
               Fertilizer Recommendations
             </h3>
             <div className="space-y-4">
-              {report.fertilizerRecommendations.map((fertilizer, index) => (
+              {currentReport.fertilizerRecommendations.map((fertilizer, index) => (
                 <div
                   key={index}
                   className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 hover:border-green-500/30 transition-all duration-300 animate-fade-in"

@@ -53,7 +53,7 @@ async def startup_event():
     
     Loads:
     - RAG engine (FAISS index + embedding model)
-    - LLM adapter (Gemini API)
+
     """
     global rag_engine, llm_adapter
     

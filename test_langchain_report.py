@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Complete end-to-end test of n8n integration
+Complete end-to-end test of LangChain Multi-Agent Report Generation
+Tests the 3 specialized AI agents generating real soil reports
 """
 import requests
 import time
@@ -10,7 +11,7 @@ BASE_URL = "http://localhost:8001"
 
 def test_complete_flow():
     print("="*60)
-    print("🧪 Testing Complete n8n Integration Flow")
+    print("🧪 Testing LangChain Multi-Agent Report Generation")
     print("="*60)
     
     # Step 1: Create session

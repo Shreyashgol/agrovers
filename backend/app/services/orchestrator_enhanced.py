@@ -124,10 +124,28 @@ def handle_user_message_enhanced(
         ), audit
     
     # Step 2: Use LLM to intelligently classify user intent
-    classifier = get_intent_classifier()
-    intent, intent_confidence = classifier.classify_intent(user_message, current_param, language)
+    # Skip intent classification for simple parameters that don't need help
+    SIMPLE_PARAMETERS = ["name", "location", "fertilizer_used"]
     
-    print(f"✓ Intent classification: {intent} (confidence: {intent_confidence:.2f})")
+    if current_param in SIMPLE_PARAMETERS:
+        # For simple parameters, assume it's an answer unless explicitly asking for help
+        explicit_help_phrases = ["help", "मदद", "don't know", "नहीं पता", "how", "कैसे"]
+        is_help = any(phrase in user_message.lower() for phrase in explicit_help_phrases)
+        
+        if is_help:
+            intent = "help_request"
+            intent_confidence = 0.90
+        else:
+            intent = "answer"
+            intent_confidence = 0.95
+        
+        print(f"✓ Intent (simple param): {intent} (confidence: {intent_confidence:.2f})")
+    else:
+        # For complex parameters, use LLM classification
+        classifier = get_intent_classifier()
+        intent, intent_confidence = classifier.classify_intent(user_message, current_param, language)
+        print(f"✓ Intent classification: {intent} (confidence: {intent_confidence:.2f})")
+    
     audit["intent"] = intent
     audit["intent_confidence"] = intent_confidence
     

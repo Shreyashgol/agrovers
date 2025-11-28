@@ -37,6 +37,11 @@ class Settings(BaseSettings):
     ollama_model_name: str = "phi3"  # Ollama model to use (phi3, mistral, llama2, etc.)
     groq_llm_api_key: str | None = None  # Groq API key for LLM (text generation)
     groq_llm_model: str = "llama-3.3-70b-versatile"  # Groq model for LLM tasks
+    groq_report_api_key: str | None = None  # Groq API key for report generation
+    
+    # Multiple Gemini keys for load distribution
+    gemini_api_key_1: str | None = None  # For soil analysis
+    gemini_api_key_2: str | None = None  # For crop recommendations
     
     # ASR/TTS Configuration
     groq_api_key: str | None = None  # Groq API key for STT (Whisper)

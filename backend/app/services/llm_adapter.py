@@ -41,6 +41,33 @@ class LLMAdapter(ABC):
             Helper text explaining how to measure the parameter
         """
         pass
+    
+    async def generate_async(self, prompt: str, temperature: float = 0.3) -> str:
+        """
+        Generate text asynchronously (for report generation).
+        
+        Args:
+            prompt: The prompt to send to the LLM
+            temperature: Sampling temperature (0.0-1.0)
+            
+        Returns:
+            Generated text
+        """
+        # Default implementation - subclasses should override for true async
+        return self.generate_sync(prompt, temperature)
+    
+    def generate_sync(self, prompt: str, temperature: float = 0.3) -> str:
+        """
+        Generate text synchronously.
+        
+        Args:
+            prompt: The prompt to send to the LLM
+            temperature: Sampling temperature (0.0-1.0)
+            
+        Returns:
+            Generated text
+        """
+        raise NotImplementedError("Subclass must implement generate_sync")
 
 
 class OllamaLLMAdapter(LLMAdapter):
@@ -495,6 +522,70 @@ To test {parameter}:"""
             return f"किसान भाई, {parameter} की जांच के लिए कृपया विकल्पों में से चुनें या फिर से प्रयास करें।"
         else:
             return f"Please select from the options or try again to test {parameter}."
+    
+    def generate_sync(self, prompt: str, temperature: float = 0.3) -> str:
+        """Generate text synchronously using Groq API."""
+        import requests
+        
+        try:
+            response = requests.post(
+                self.base_url,
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": self.model_name,
+                    "messages": [
+                        {"role": "user", "content": prompt}
+                    ],
+                    "temperature": temperature,
+                    "max_tokens": 2000,
+                },
+                timeout=60
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                return result["choices"][0]["message"]["content"].strip()
+            else:
+                raise Exception(f"Groq API error: {response.status_code}")
+        
+        except Exception as e:
+            print(f"✗ Groq generation error: {e}")
+            raise
+    
+    async def generate_async(self, prompt: str, temperature: float = 0.3) -> str:
+        """Generate text asynchronously using Groq API."""
+        import httpx
+        
+        try:
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                response = await client.post(
+                    self.base_url,
+                    headers={
+                        "Authorization": f"Bearer {self.api_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": self.model_name,
+                        "messages": [
+                            {"role": "user", "content": prompt}
+                        ],
+                        "temperature": temperature,
+                        "max_tokens": 2000,
+                    }
+                )
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    return result["choices"][0]["message"]["content"].strip()
+                else:
+                    raise Exception(f"Groq API error: {response.status_code}")
+        
+        except Exception as e:
+            print(f"✗ Groq async generation error: {e}")
+            raise
 
 
 def create_llm_adapter() -> LLMAdapter:

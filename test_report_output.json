@@ -1,0 +1,198 @@
+{
+  "english": {
+    "soilAnalysis": {
+      "assessment": "The soil in Pune, Maharashtra has a black color, is moist, and has an earthy smell, indicating good organic matter content. The acidic pH level may require lime application for certain crops. The clay soil type can retain water and nutrients, but may be prone to waterlogging. The presence of earthworms indicates good biological activity, which is beneficial for soil health.",
+      "pros": [
+        "Good water retention due to clay soil",
+        "High organic matter content indicated by black color and earthy smell",
+        "Presence of earthworms shows good biological activity",
+        "Moist soil reduces irrigation needs",
+        "Suitable for crops that thrive in acidic pH"
+      ],
+      "cons": [
+        "May be prone to waterlogging due to clay soil",
+        "Acidic pH may require lime application for certain crops",
+        "Previous use of urea may have affected soil microbial balance",
+        "May require drainage management to prevent waterlogging"
+      ],
+      "rating": "Good"
+    },
+    "cropRecommendations": [
+      {
+        "crop": "Rice",
+        "reason": "thrives in clay soil with moist conditions",
+        "season": "Kharif (Jun-Jul)"
+      },
+      {
+        "crop": "Sugarcane",
+        "reason": "tolerates acidic soil and high moisture levels",
+        "season": "Oct-Nov"
+      },
+      {
+        "crop": "Tur",
+        "reason": "well-suited for clay soil and acidic pH",
+        "season": "Kharif (Jun-Jul)"
+      },
+      {
+        "crop": "Chillies",
+        "reason": "prefers well-drained clay soil with earthworm activity",
+        "season": "Rabi (Oct-Nov)"
+      },
+      {
+        "crop": "Wheat",
+        "reason": "can grow in slightly acidic clay soil with adequate moisture",
+        "season": "Rabi (Oct-Nov)"
+      },
+      {
+        "crop": "Groundnut",
+        "reason": "suitable for clay soil with earthworms and moist conditions",
+        "season": "Kharif (Jun-Jul)"
+      }
+    ],
+    "fertilizerRecommendations": [
+      {
+        "fertilizer": "Compost",
+        "type": "Organic",
+        "application": "3 tons/acre",
+        "timing": "Pre-planting",
+        "purpose": "Improve soil structure and fertility for rice and sugarcane"
+      },
+      {
+        "fertilizer": "Farm Yard Manure (FYM)",
+        "type": "Organic",
+        "application": "2 tons/acre",
+        "timing": "At planting",
+        "purpose": "Provide nutrients and support earthworm activity"
+      },
+      {
+        "fertilizer": "Rhizobium bio-fertilizer",
+        "type": "Organic",
+        "application": "10 kg/acre",
+        "timing": "At sowing for tur",
+        "purpose": "Fix nitrogen for tur crop"
+      },
+      {
+        "fertilizer": "NPK (10:20:10)",
+        "type": "Chemical",
+        "application": "100 kg/acre",
+        "timing": "At planting for rice and sugarcane",
+        "purpose": "Provide balanced nutrients for crop growth"
+      },
+      {
+        "fertilizer": "DAP (18:46:0)",
+        "type": "Chemical",
+        "application": "50 kg/acre",
+        "timing": "At sowing for tur",
+        "purpose": "Support phosphorus requirements for tur crop"
+      },
+      {
+        "fertilizer": "Urea (46:0:0)",
+        "type": "Chemical",
+        "application": "75 kg/acre",
+        "timing": "At tillering stage for rice",
+        "purpose": "Boost nitrogen levels for rice crop"
+      }
+    ]
+  },
+  "hindi": {
+    "soilAnalysis": {
+      "assessment": "The soil in Pune, Maharashtra has a black color, is moist, and has an earthy smell, indicating good organic matter content. The acidic pH level may require lime application for certain crops. The clay soil type can retain water and nutrients, but may be prone to waterlogging. The presence of earthworms indicates good biological activity, which is beneficial for soil health.",
+      "pros": [
+        "Good water retention due to clay soil",
+        "High organic matter content indicated by black color and earthy smell",
+        "Presence of earthworms shows good biological activity",
+        "Moist soil reduces irrigation needs",
+        "Suitable for crops that thrive in acidic pH"
+      ],
+      "cons": [
+        "May be prone to waterlogging due to clay soil",
+        "Acidic pH may require lime application for certain crops",
+        "Previous use of urea may have affected soil microbial balance",
+        "May require drainage management to prevent waterlogging"
+      ],
+      "rating": "Good"
+    },
+    "cropRecommendations": [
+      {
+        "crop": "Rice",
+        "reason": "thrives in clay soil with moist conditions",
+        "season": "Kharif (Jun-Jul)"
+      },
+      {
+        "crop": "Sugarcane",
+        "reason": "tolerates acidic soil and high moisture levels",
+        "season": "Oct-Nov"
+      },
+      {
+        "crop": "Tur",
+        "reason": "well-suited for clay soil and acidic pH",
+        "season": "Kharif (Jun-Jul)"
+      },
+      {
+        "crop": "Chillies",
+        "reason": "prefers well-drained clay soil with earthworm activity",
+        "season": "Rabi (Oct-Nov)"
+      },
+      {
+        "crop": "Wheat",
+        "reason": "can grow in slightly acidic clay soil with adequate moisture",
+        "season": "Rabi (Oct-Nov)"
+      },
+      {
+        "crop": "Groundnut",
+        "reason": "suitable for clay soil with earthworms and moist conditions",
+        "season": "Kharif (Jun-Jul)"
+      }
+    ],
+    "fertilizerRecommendations": [
+      {
+        "fertilizer": "Compost",
+        "type": "Organic",
+        "application": "3 tons/acre",
+        "timing": "Pre-planting",
+        "purpose": "Improve soil structure and fertility for rice and sugarcane"
+      },
+      {
+        "fertilizer": "Farm Yard Manure (FYM)",
+        "type": "Organic",
+        "application": "2 tons/acre",
+        "timing": "At planting",
+        "purpose": "Provide nutrients and support earthworm activity"
+      },
+      {
+        "fertilizer": "Rhizobium bio-fertilizer",
+        "type": "Organic",
+        "application": "10 kg/acre",
+        "timing": "At sowing for tur",
+        "purpose": "Fix nitrogen for tur crop"
+      },
+      {
+        "fertilizer": "NPK (10:20:10)",
+        "type": "Chemical",
+        "application": "100 kg/acre",
+        "timing": "At planting for rice and sugarcane",
+        "purpose": "Provide balanced nutrients for crop growth"
+      },
+      {
+        "fertilizer": "DAP (18:46:0)",
+        "type": "Chemical",
+        "application": "50 kg/acre",
+        "timing": "At sowing for tur",
+        "purpose": "Support phosphorus requirements for tur crop"
+      },
+      {
+        "fertilizer": "Urea (46:0:0)",
+        "type": "Chemical",
+        "application": "75 kg/acre",
+        "timing": "At tillering stage for rice",
+        "purpose": "Boost nitrogen levels for rice crop"
+      }
+    ]
+  },
+  "metadata": {
+    "sessionId": "4a58419f-cde3-4567-905b-49d857b96123",
+    "generatedAt": "2025-11-28 22:04:20.011803",
+    "location": "pune maharashtra",
+    "soilType": "clay"
+  }
+}

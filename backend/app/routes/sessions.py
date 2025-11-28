@@ -27,7 +27,7 @@ from ..services.orchestrator import (
 from ..services.orchestrator_enhanced import handle_user_message_enhanced
 from ..services.rag_engine import RAGEngine
 from ..services.llm_adapter import LLMAdapter
-from ..services.n8n_client import send_to_n8n
+# n8n removed - using direct LLM report generation
 from ..services.stt_service import create_stt_service
 from ..services.tts_service import create_tts_service
 
@@ -160,11 +160,7 @@ async def next_message(
     # Log audit data
     print(f"📊 Audit: {audit}")
     
-    # If complete, send to n8n
-    if response.is_complete:
-        success, error = send_to_n8n(response.answers)
-        if not success:
-            print(f"⚠ Warning: Failed to send to n8n: {error}")
+    # n8n removed - report generation happens via /api/reports/generate endpoint
     
     return response
 

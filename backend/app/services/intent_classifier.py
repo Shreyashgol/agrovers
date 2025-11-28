@@ -51,6 +51,12 @@ class IntentClassifier:
         # Quick check: If message is very short and looks like a valid value, it's likely an answer
         user_lower = user_message.lower().strip()
         
+        # Special handling for "name" - almost always an answer unless explicitly asking for help
+        if parameter == "name":
+            explicit_help = ["help", "मदद", "don't know", "नहीं पता", "how", "कैसे"]
+            if not any(phrase in user_lower for phrase in explicit_help):
+                return "answer", 0.99
+        
         # Comprehensive valid answers for each parameter (English + Hindi + variations)
         valid_answers = {
             "color": [
@@ -105,8 +111,11 @@ class IntentClassifier:
                 "haan", "nahi", "bahut", "kam", "thode"
             ],
             "location": [
-                # Any location-related words
-                "village", "district", "state", "city", "town", "गाँव", "जिला", "राज्य"
+                # Any location-related words - be very permissive for location
+                "village", "district", "state", "city", "town", "गाँव", "गाउं", "जिला", "राज्य",
+                "में", "है", "से", "का", "की", "in", "at", "from", "near",
+                # Common location indicators
+                "नई", "पुरानी", "बड़ा", "छोटा", "नगर", "पुर", "आबाद", "गढ़"
             ],
             "fertilizer_used": [
                 # English
@@ -117,6 +126,32 @@ class IntentClassifier:
                 "vermicompost", "cow dung", "gobar"
             ],
         }
+        
+        # Special handling for location - be VERY permissive
+        if parameter == "location":
+            # For location, unless it's explicitly "don't know" or "help", treat as answer
+            explicit_help = ["don't know", "dont know", "नहीं पता", "मदद", "help", "कैसे बताऊं"]
+            is_explicit_help = any(phrase in user_lower for phrase in explicit_help)
+            
+            if not is_explicit_help:
+                # If message has more than 2 words, it's almost certainly a location
+                if len(user_message.split()) > 2:
+                    return "answer", 0.99
+                
+                # If it has location indicators, it's an answer
+                location_indicators = ["में", "है", "से", "का", "की", "गाँव", "गाउं", "जिला", "in", "at", "from", "village", "district"]
+                for indicator in location_indicators:
+                    if indicator in user_lower:
+                        return "answer", 0.98
+                
+                # If it's a proper noun (capitalized words), likely a location
+                words = user_message.split()
+                if any(word[0].isupper() for word in words if len(word) > 0):
+                    return "answer", 0.97
+                
+                # For location, even short answers are likely valid (e.g., "Delhi", "Pune")
+                if len(user_message.strip()) > 3:
+                    return "answer", 0.95
         
         # Check if message contains any valid answer for this parameter
         if parameter in valid_answers:
@@ -154,7 +189,22 @@ class IntentClassifier:
         # For longer messages, use LLM classification
         # Build classification prompt
         if language == "hi":
-            prompt = f"""किसान का संदेश: "{user_message}"
+            # Special prompt for location
+            if parameter == "location":
+                prompt = f"""किसान का संदेश: "{user_message}"
+प्रश्न: आपका खेत कहाँ है? (गाँव, जिला, राज्य)
+
+क्या किसान:
+A) स्थान बता रहा है (जैसे "सोनीपत में", "दिल्ली", "मेरा गाँव बालगड़ है")
+B) मदद मांग रहा है (जैसे "नहीं पता", "कैसे बताऊं")
+
+महत्वपूर्ण: अगर संदेश में कोई भी स्थान का नाम है, तो "ANSWER" चुनें।
+
+केवल एक शब्द में जवाब दो: "ANSWER" या "HELP"
+
+जवाब:"""
+            else:
+                prompt = f"""किसान का संदेश: "{user_message}"
 प्रश्न: मिट्टी का {parameter} क्या है?
 
 क्या किसान:
@@ -167,7 +217,22 @@ B) मदद मांग रहा है (जैसे "नहीं पता
 
 जवाब:"""
         else:
-            prompt = f"""User message: "{user_message}"
+            # Special prompt for location
+            if parameter == "location":
+                prompt = f"""User message: "{user_message}"
+Question: Where is your farm located? (village, district, state)
+
+Is the user:
+A) Providing a location (like "Sonipat", "Delhi", "My village is Balgad")
+B) Asking for help (like "don't know", "how to tell")
+
+IMPORTANT: If the message contains ANY place name or location, choose "ANSWER".
+
+Reply with ONLY ONE WORD: "ANSWER" or "HELP"
+
+Reply:"""
+            else:
+                prompt = f"""User message: "{user_message}"
 Question: What is the soil {parameter}?
 
 Is the user:
@@ -194,10 +259,10 @@ Reply:"""
                         "messages": [
                             {"role": "user", "content": prompt}
                         ],
-                        "temperature": 0.1,
-                        "max_tokens": 5,
+                        "temperature": 0.0,  # Deterministic for faster response
+                        "max_tokens": 3,  # Just need "ANSWER" or "HELP"
                     },
-                    timeout=5
+                    timeout=3  # Shorter timeout
                 )
                 
                 if response.status_code == 200:

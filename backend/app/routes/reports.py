@@ -5,7 +5,6 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
 import logging
-from ..services.n8n_service import n8n_service
 from ..services.session_manager import session_manager
 
 logger = logging.getLogger(__name__)
@@ -66,17 +65,19 @@ async def generate_report(request: ReportRequest, background_tasks: BackgroundTa
         raise HTTPException(status_code=500, detail=str(e))
 
 async def generate_report_background(session_id: str, session):
-    """Background task for report generation"""
+    """Background task for report generation using AI agents"""
     try:
+        from ..services.report_orchestrator import report_orchestrator
+        from ..services.report_translator import report_translator
+        
         # Update progress
         report_status_store[session_id] = {
             "status": "processing",
-            "progress": 30,
+            "progress": 20,
             "message": "Analyzing soil parameters..."
         }
         
-        # Prepare soil data - map from session.answers to n8n format
-        # session.answers has: name, color, moisture, smell, ph_category, ph_value, soil_type, earthworms, location, fertilizer_used
+        # Prepare soil data (always in English for LLM)
         soil_data = {
             "id": session_id,
             "name": session.answers.name or "",
@@ -88,34 +89,46 @@ async def generate_report_background(session_id: str, session):
             "earthworms": session.answers.earthworms or "",
             "location": session.answers.location or "",
             "previousFertilizers": session.answers.fertilizer_used or "",
-            "preferredLanguage": session.language
         }
         
         # Update progress
-        report_status_store[session_id]["progress"] = 50
-        report_status_store[session_id]["message"] = "Generating personalized recommendations..."
+        report_status_store[session_id]["progress"] = 40
+        report_status_store[session_id]["message"] = "Generating crop recommendations..."
         
-        # Call n8n service
-        result = await n8n_service.generate_soil_report(soil_data)
+        # Generate report in English using LangChain orchestrator
+        report_english = await report_orchestrator.generate_complete_report(soil_data)
         
-        if result["success"]:
-            # Parse report if needed
-            report_data = result["report"]
-            if isinstance(report_data, str):
-                report_data = n8n_service.parse_report_text(report_data)
-            
-            report_status_store[session_id] = {
-                "status": "completed",
-                "progress": 100,
-                "message": "Report generated successfully!",
-                "report": report_data
+        # Update progress
+        report_status_store[session_id]["progress"] = 70
+        report_status_store[session_id]["message"] = "Translating to Hindi..."
+        
+        # Translate to Hindi (with fallback to English if translation fails)
+        try:
+            report_hindi = await report_translator.translate_complete_report(report_english)
+        except Exception as e:
+            logger.error(f"Translation failed, using English as fallback: {e}")
+            report_hindi = report_english  # Fallback to English
+        
+        # Update progress
+        report_status_store[session_id]["progress"] = 90
+        report_status_store[session_id]["message"] = "Finalizing report..."
+        
+        # Store completed report with both languages
+        report_status_store[session_id] = {
+            "status": "completed",
+            "progress": 100,
+            "message": "Report generated successfully!",
+            "report": {
+                "english": report_english,
+                "hindi": report_hindi,
+                "metadata": {
+                    "sessionId": session_id,
+                    "generatedAt": str(__import__('datetime').datetime.now()),
+                    "location": soil_data.get("location", ""),
+                    "soilType": soil_data.get("soilType", "")
+                }
             }
-        else:
-            report_status_store[session_id] = {
-                "status": "failed",
-                "progress": 0,
-                "message": result.get("error", "Failed to generate report")
-            }
+        }
             
     except Exception as e:
         logger.error(f"Error in background report generation: {str(e)}")
@@ -141,10 +154,11 @@ async def get_report_status(session_id: str) -> ReportStatusResponse:
     
     return ReportStatusResponse(**status_data)
 
+
 @router.get("/download/{session_id}")
 async def download_report(session_id: str):
     """
-    Download the generated report
+    Download the generated report as JSON
     """
     status_data = report_status_store.get(session_id)
     
@@ -155,3 +169,38 @@ async def download_report(session_id: str):
         "success": True,
         "report": status_data["report"]
     }
+
+
+@router.get("/download/{session_id}/pdf")
+async def download_report_pdf(session_id: str, language: str = "english"):
+    """
+    Download the generated report as PDF
+    
+    Args:
+        session_id: Session ID
+        language: "english" or "hindi"
+    """
+    from fastapi.responses import StreamingResponse
+    from ..services.pdf_generator import pdf_generator
+    
+    status_data = report_status_store.get(session_id)
+    
+    if not status_data or status_data["status"] != "completed":
+        raise HTTPException(status_code=404, detail="Report not ready")
+    
+    try:
+        # Generate PDF
+        pdf_buffer = pdf_generator.generate_pdf(status_data["report"], language)
+        
+        # Return as downloadable file
+        filename = f"soil_report_{session_id}_{language}.pdf"
+        return StreamingResponse(
+            pdf_buffer,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}"
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error generating PDF: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate PDF: {str(e)}")
